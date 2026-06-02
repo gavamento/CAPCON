@@ -1,0 +1,228 @@
+@import "tailwindcss";
+
+@theme {
+	--font-sans: "IBM Plex Sans JP", "Hiragino Sans", "Meiryo", sans-serif;
+	--font-mono: "IBM Plex Mono", "Consolas", monospace;
+	--color-bg: #121110;
+	--color-surface: #1a1917;
+	--color-surface-elevated: #242220;
+	--color-border: #3a3632;
+	--color-text: #ece6dc;
+	--color-muted: #9a9288;
+	--color-accent: #d4653a;
+	--color-accent-dim: #a84e2c;
+	--color-prog: #6b9e82;
+	--color-planner: #c9a227;
+}
+
+html {
+	scroll-behavior: smooth;
+}
+
+html {
+	overflow-x: clip;
+}
+
+body {
+	font-family: var(--font-sans);
+	background-color: var(--color-bg);
+	color: var(--color-text);
+	min-height: 100dvh;
+	line-height: 1.65;
+	overflow-x: clip;
+	padding-left: env(safe-area-inset-left);
+	padding-right: env(safe-area-inset-right);
+}
+
+body.mobile-nav-open {
+	overflow: hidden;
+}
+
+::selection {
+	background-color: color-mix(in srgb, var(--color-accent) 40%, transparent);
+}
+
+/* セクション見出し（番号付き） */
+.section-eyebrow {
+	font-family: var(--font-mono);
+	font-size: 0.75rem;
+	font-weight: 500;
+	letter-spacing: 0.08em;
+	color: var(--color-muted);
+}
+
+.section-eyebrow::before {
+	content: "— ";
+	color: var(--color-accent);
+}
+
+/* ボタン */
+.btn-primary {
+	display: inline-flex;
+	align-items: center;
+	border-radius: 2px;
+	background-color: var(--color-accent);
+	padding: 0.75rem 1.5rem;
+	font-size: 0.875rem;
+	font-weight: 600;
+	color: #121110;
+	transition: background-color 0.15s ease;
+}
+
+.btn-primary:hover {
+	background-color: var(--color-accent-dim);
+}
+
+.btn-secondary {
+	display: inline-flex;
+	align-items: center;
+	border-radius: 2px;
+	border: 1px solid var(--color-border);
+	padding: 0.75rem 1.5rem;
+	font-size: 0.875rem;
+	font-weight: 500;
+	color: var(--color-text);
+	transition:
+		border-color 0.15s ease,
+		background-color 0.15s ease;
+}
+
+.btn-secondary:hover {
+	border-color: var(--color-muted);
+	background-color: var(--color-surface);
+}
+
+/* タグ */
+.tag {
+	border-radius: 2px;
+	border: 1px solid var(--color-border);
+	padding: 0.125rem 0.5rem;
+	font-family: var(--font-mono);
+	font-size: 0.6875rem;
+	font-weight: 500;
+	letter-spacing: 0.02em;
+}
+
+.tag--prog {
+	border-color: color-mix(in srgb, var(--color-prog) 45%, var(--color-border));
+	background-color: color-mix(in srgb, var(--color-prog) 14%, transparent);
+	color: var(--color-prog);
+}
+
+.tag--planner {
+	border-color: color-mix(in srgb, var(--color-planner) 45%, var(--color-border));
+	background-color: color-mix(in srgb, var(--color-planner) 14%, transparent);
+	color: var(--color-planner);
+}
+
+.tag--neutral {
+	color: var(--color-muted);
+	background-color: var(--color-surface-elevated);
+}
+
+.tag--contest {
+	color: var(--color-accent);
+	border: 1px solid color-mix(in srgb, var(--color-accent) 40%, transparent);
+	background-color: color-mix(in srgb, var(--color-accent) 12%, transparent);
+}
+
+/* カード */
+.card {
+	border: 1px solid var(--color-border);
+	background-color: var(--color-surface);
+	transition: border-color 0.15s ease;
+}
+
+.card:hover {
+	border-color: var(--color-muted);
+}
+
+.card-link:hover {
+	color: var(--color-accent);
+}
+
+/* 成長タイムライン：年次ブロック → 作品一覧 */
+.growth-year-link {
+	color: inherit;
+	text-decoration: none;
+	transition: background-color 0.15s ease;
+}
+
+.growth-year-link:hover {
+	background-color: color-mix(in srgb, var(--color-accent) 8%, transparent);
+}
+
+.growth-year-link:focus-visible {
+	outline: 2px solid var(--color-accent);
+	outline-offset: -2px;
+}
+
+/* フィルタ・タブ（アクティブ） */
+.filter-active {
+	border-color: var(--color-accent) !important;
+	background-color: color-mix(in srgb, var(--color-accent) 12%, transparent) !important;
+	color: var(--color-accent) !important;
+}
+
+.prose-work {
+	line-height: 1.8;
+	color: var(--color-muted);
+}
+
+.prose-work p {
+	margin-bottom: 1rem;
+}
+
+.prose-work h2,
+.prose-work h3 {
+	margin-top: 1.5rem;
+	margin-bottom: 0.75rem;
+	font-weight: 600;
+	color: var(--color-text);
+}
+
+.prose-work h2 {
+	font-size: 1.25rem;
+}
+
+.prose-work h3 {
+	font-size: 1.125rem;
+}
+
+.prose-work ul,
+.prose-work ol {
+	margin-bottom: 1rem;
+	padding-left: 1.5rem;
+}
+
+.prose-work li {
+	margin-bottom: 0.35rem;
+}
+
+/* スマホ（768px未満） */
+@media (max-width: 767px) {
+	.section-eyebrow {
+		font-size: 0.6875rem;
+	}
+
+	.btn-primary,
+	.btn-secondary {
+		min-height: 2.75rem;
+		padding-left: 1.25rem;
+		padding-right: 1.25rem;
+	}
+
+	.card {
+		border-radius: 0;
+	}
+
+	.site-header {
+		padding-top: env(safe-area-inset-top);
+	}
+
+	.mobile-nav-panel a {
+		min-height: 2.75rem;
+		display: flex;
+		align-items: center;
+	}
+}

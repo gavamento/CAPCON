@@ -1,0 +1,113 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import WorkCard from '../../components/WorkCard.astro';
+import WorkTagBadges from '../../components/WorkTagBadges.astro';
+import { getWorksForContest } from '../../lib/contests';
+import type { WorkTagId } from '../../lib/tags';
+import { getAllWorks } from '../../lib/works';
+
+export async function getStaticPaths() {
+	const contests = await getCollection('contests');
+	return contests.map((entry) => ({
+		params: { id: entry.id },
+		props: { entry },
+	}));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const { title, date, tags, organizer, award, summary, thumbnail, link } = entry.data;
+const yearTags = (tags ?? []) as WorkTagId[];
+
+const allWorks = await getAllWorks();
+const relatedWorks = getWorksForContest(allWorks, entry.id);
+const thumb = thumbnail ?? '/images/placeholder-year1.svg';
+---
+
+<BaseLayout title={title} description={summary}>
+	<article class="mx-auto max-w-4xl px-4 py-12 sm:px-6 sm:py-16">
+		<a
+			href="/contests"
+			class="mb-8 inline-flex items-center gap-1 font-mono text-sm text-[var(--color-muted)] transition hover:text-[var(--color-accent)]"
+		>
+			← 学内コンテストに戻る
+		</a>
+
+		<header class="mb-10 space-y-4">
+			<div class="flex flex-wrap items-center gap-2">
+				<span class="tag tag--neutral px-3 py-1 text-sm">{date}</span>
+				{yearTags.length > 0 && <WorkTagBadges tags={yearTags} size="md" />}
+				{
+					award && (
+						<span class="tag border-[var(--color-accent)]/40 bg-[color-mix(in_srgb,var(--color-accent)_12%,transparent)] px-3 py-1 text-sm text-[var(--color-accent)]">
+							{award}
+						</span>
+					)
+				}
+			</div>
+			<h1 class="text-3xl font-bold text-[var(--color-text)] sm:text-4xl">{title}</h1>
+			<p class="text-lg text-[var(--color-muted)]">{summary}</p>
+			<dl class="grid gap-2 text-sm sm:grid-cols-2">
+				{
+					organizer && (
+						<div>
+							<dt class="text-[var(--color-muted)]">主催</dt>
+							<dd class="font-medium text-[var(--color-text)]">{organizer}</dd>
+						</div>
+					)
+				}
+				{
+					link && (
+						<div>
+							<dt class="text-[var(--color-muted)]">公式情報</dt>
+							<dd>
+								<a
+									href={link}
+									class="font-medium text-[var(--color-accent)] transition hover:underline"
+									target="_blank"
+									rel="noopener noreferrer"
+								>
+									コンテストページを開く
+								</a>
+							</dd>
+						</div>
+					)
+				}
+			</dl>
+		</header>
+
+		<img
+			src={thumb}
+			alt=""
+			class="mb-12 aspect-video w-full border border-[var(--color-border)] object-cover"
+			loading="lazy"
+		/>
+
+		<section class="prose-work card mb-12 p-6 sm:p-8">
+			<h2 class="mb-4 text-xl font-semibold text-[var(--color-text)]">参加記録・振り返り</h2>
+			<Content />
+		</section>
+
+		{
+			relatedWorks.length > 0 && (
+				<section>
+					<h2 class="mb-6 text-xl font-semibold text-[var(--color-text)]">このコンテストで使用した作品</h2>
+					<div class="grid gap-6 sm:grid-cols-2">
+						{relatedWorks.map((work) => (
+							<WorkCard work={work} />
+						))}
+					</div>
+					<p class="mt-6">
+						<a
+							href="/contests?tab=works"
+							class="text-sm text-[var(--color-accent)] transition hover:underline"
+						>
+							コンテスト作品タブで一覧を見る →
+						</a>
+					</p>
+				</section>
+			)
+		}
+	</article>
+</BaseLayout>

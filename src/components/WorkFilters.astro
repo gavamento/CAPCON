@@ -1,0 +1,198 @@
+---
+import {
+	CATEGORY_FILTER_OPTIONS,
+	TYPE_FILTER_OPTIONS,
+	YEAR_FILTER_OPTIONS,
+} from '../lib/tags';
+
+interface Props {
+	activeYear?: string;
+	activeCategory?: string;
+	activeType?: string;
+}
+
+const {
+	activeYear = 'all',
+	activeCategory = 'all',
+	activeType = 'all',
+} = Astro.props;
+---
+
+<div
+	class="work-filters space-y-5"
+	data-active-year={activeYear}
+	data-active-category={activeCategory}
+	data-active-type={activeType}
+>
+	<div>
+		<p class="mb-2 font-mono text-xs text-[var(--color-muted)]">種別</p>
+		<div class="flex flex-wrap gap-2" role="group" aria-label="種別でフィルタ">
+			{
+				TYPE_FILTER_OPTIONS.map((f) => (
+					<button
+						type="button"
+						data-filter-type={f.value}
+						class:list={[
+							'filter-type rounded-sm border border-[var(--color-border)] px-3 py-2.5 text-sm transition sm:px-4',
+							activeType === f.value
+								? 'filter-active'
+								: 'text-[var(--color-muted)] hover:border-[var(--color-muted)] hover:text-[var(--color-text)]',
+						]}
+					>
+						{f.label}
+					</button>
+				))
+			}
+		</div>
+	</div>
+	<div>
+		<p class="mb-2 font-mono text-xs text-[var(--color-muted)]">学年</p>
+		<div class="flex flex-wrap gap-2" role="group" aria-label="学年でフィルタ">
+			{
+				YEAR_FILTER_OPTIONS.map((f) => (
+					<button
+						type="button"
+						data-filter-year={f.value}
+						class:list={[
+							'filter-year rounded-sm border border-[var(--color-border)] px-3 py-2.5 text-sm transition sm:px-4',
+							activeYear === f.value
+								? 'filter-active'
+								: 'text-[var(--color-muted)] hover:border-[var(--color-muted)] hover:text-[var(--color-text)]',
+						]}
+					>
+						{f.label}
+					</button>
+				))
+			}
+		</div>
+	</div>
+	<div>
+		<p class="mb-2 font-mono text-xs text-[var(--color-muted)]">職種</p>
+		<div class="flex flex-wrap gap-2" role="group" aria-label="職種でフィルタ">
+			{
+				CATEGORY_FILTER_OPTIONS.map((f) => (
+					<button
+						type="button"
+						data-filter-category={f.value}
+						class:list={[
+							'filter-category rounded-sm border border-[var(--color-border)] px-3 py-2.5 text-sm transition sm:px-4',
+							activeCategory === f.value
+								? 'filter-active'
+								: 'text-[var(--color-muted)] hover:border-[var(--color-muted)] hover:text-[var(--color-text)]',
+						]}
+					>
+						{f.label}
+					</button>
+				))
+			}
+		</div>
+	</div>
+</div>
+
+<script>
+	import {
+		normalizeCategoryFilterParam,
+		normalizeTypeFilterParam,
+		normalizeYearFilterParam,
+	} from '../lib/tags';
+
+	function initWorkFilters() {
+		const container = document.querySelector('.work-filters');
+		if (!container) return;
+
+		// 静的ビルドでは SSR 時に searchParams が空のため、実行時の URL を優先する
+		const params = new URLSearchParams(window.location.search);
+		let activeYear = normalizeYearFilterParam(params.get('year'));
+		let activeCategory = normalizeCategoryFilterParam(params.get('category'));
+		let activeType = normalizeTypeFilterParam(params.get('type'));
+
+		if (!params.has('year')) {
+			activeYear = container.getAttribute('data-active-year') ?? 'all';
+		}
+		if (!params.has('category')) {
+			activeCategory = container.getAttribute('data-active-category') ?? 'all';
+		}
+		if (!params.has('type')) {
+			activeType = normalizeTypeFilterParam(container.getAttribute('data-active-type'));
+		}
+
+		const cards = document.querySelectorAll<HTMLElement>('[data-work-card]');
+
+		function updateUrl() {
+			const params = new URLSearchParams();
+			if (activeType !== 'all') params.set('type', activeType);
+			if (activeYear !== 'all') params.set('year', activeYear);
+			if (activeCategory !== 'all') params.set('category', activeCategory);
+			const qs = params.toString();
+			const url = qs ? `${window.location.pathname}?${qs}` : window.location.pathname;
+			window.history.replaceState({}, '', url);
+		}
+
+		function applyFilters() {
+			cards.forEach((card) => {
+				const tagList = (card.dataset.tags ?? '').split(',').filter(Boolean);
+				const isContest = card.dataset.contestWork === 'true';
+				const yearMatch = activeYear === 'all' || tagList.includes(activeYear);
+				const catMatch =
+					activeCategory === 'all' || tagList.includes(activeCategory);
+				const typeMatch =
+					activeType === 'all' ||
+					(activeType === 'contest' && isContest) ||
+					(activeType === 'regular' && !isContest);
+				card.classList.toggle('hidden', !(yearMatch && catMatch && typeMatch));
+			});
+			updateUrl();
+			updateButtonStyles();
+		}
+
+		function updateButtonStyles() {
+			container.querySelectorAll<HTMLButtonElement>('.filter-type').forEach((btn) => {
+				const val = btn.dataset.filterType ?? 'all';
+				const active = val === activeType;
+				btn.classList.toggle('filter-active', active);
+				btn.classList.toggle('text-[var(--color-muted)]', !active);
+			});
+			container.querySelectorAll<HTMLButtonElement>('.filter-year').forEach((btn) => {
+				const val = btn.dataset.filterYear ?? 'all';
+				const active = val === activeYear;
+				btn.classList.toggle('filter-active', active);
+				btn.classList.toggle('text-[var(--color-muted)]', !active);
+			});
+			container.querySelectorAll<HTMLButtonElement>('.filter-category').forEach((btn) => {
+				const val = btn.dataset.filterCategory ?? 'all';
+				const active = val === activeCategory;
+				btn.classList.toggle('filter-active', active);
+				btn.classList.toggle('text-[var(--color-muted)]', !active);
+			});
+		}
+
+		container.querySelectorAll('.filter-type').forEach((btn) => {
+			btn.addEventListener('click', () => {
+				activeType = (btn as HTMLButtonElement).dataset.filterType ?? 'all';
+				applyFilters();
+			});
+		});
+
+		container.querySelectorAll('.filter-year').forEach((btn) => {
+			btn.addEventListener('click', () => {
+				activeYear = (btn as HTMLButtonElement).dataset.filterYear ?? 'all';
+				applyFilters();
+			});
+		});
+
+		container.querySelectorAll('.filter-category').forEach((btn) => {
+			btn.addEventListener('click', () => {
+				activeCategory = (btn as HTMLButtonElement).dataset.filterCategory ?? 'all';
+				applyFilters();
+			});
+		});
+
+		applyFilters();
+	}
+
+	if (document.readyState === 'loading') {
+		document.addEventListener('DOMContentLoaded', initWorkFilters, { once: true });
+	} else {
+		initWorkFilters();
+	}
+</script>

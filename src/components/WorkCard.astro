@@ -1,0 +1,36 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { getEffectiveWorkTags } from '../lib/works';
+import WorkTagBadges from './WorkTagBadges.astro';
+
+interface Props {
+	work: CollectionEntry<'works'>;
+}
+
+const { work } = Astro.props;
+const { title, summary, thumbnail, role } = work.data;
+const displayTags = getEffectiveWorkTags(work.data);
+const href = `/works/${work.id}`;
+const thumb = thumbnail ?? '/images/placeholder-year1.svg';
+---
+
+<article class="card group flex h-full flex-col overflow-hidden">
+	<a href={href} class="block overflow-hidden border-b border-[var(--color-border)]">
+		<img
+			src={thumb}
+			alt=""
+			class="aspect-video w-full object-cover"
+			loading="lazy"
+		/>
+	</a>
+	<div class="flex flex-1 flex-col gap-3 p-5">
+		<div class="flex flex-wrap items-center gap-2">
+			<WorkTagBadges tags={displayTags} />
+		</div>
+		<h3 class="text-lg font-semibold leading-snug text-[var(--color-text)]">
+			<a href={href} class="card-link transition-colors">{title}</a>
+		</h3>
+		<p class="flex-1 text-sm leading-relaxed text-[var(--color-muted)]">{summary}</p>
+		<p class="font-mono text-xs text-[var(--color-muted)]">{role}</p>
+	</div>
+</article>

@@ -1,0 +1,78 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import WorkCard from '../../components/WorkCard.astro';
+import WorkFilters from '../../components/WorkFilters.astro';
+import {
+	normalizeCategoryFilterParam,
+	normalizeTypeFilterParam,
+	normalizeYearFilterParam,
+} from '../../lib/tags';
+import { getAllWorks, getContestWorksFromList, getEffectiveWorkTags, isContestWork } from '../../lib/works';
+
+const works = await getAllWorks();
+const contestWorks = getContestWorksFromList(works);
+const activeYear = normalizeYearFilterParam(Astro.url.searchParams.get('year'));
+const activeCategory = normalizeCategoryFilterParam(Astro.url.searchParams.get('category'));
+const activeType = normalizeTypeFilterParam(Astro.url.searchParams.get('type'));
+---
+
+<BaseLayout
+	title="作品一覧"
+	description="通常作品と学内コンテスト出品作を、学年・職種・種別で絞り込んで閲覧できます。"
+>
+	<div class="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16">
+		<header class="mb-10">
+			<p class="section-eyebrow mb-2">Works</p>
+			<h1 class="text-2xl font-bold text-[var(--color-text)] sm:text-3xl">作品一覧</h1>
+			<p class="mt-2 font-mono text-sm text-[var(--color-muted)]">
+				全 {works.length} 件（コンテスト {contestWorks.length} 件）— 学年・職種・種別で絞り込み
+			</p>
+		</header>
+
+		<div class="card mb-10 p-4 sm:p-6">
+			<WorkFilters
+				activeYear={activeYear}
+				activeCategory={activeCategory}
+				activeType={activeType}
+			/>
+		</div>
+
+		<div id="works-grid" class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+			{
+				works.map((work) => {
+					const effectiveTags = getEffectiveWorkTags(work.data);
+					return (
+						<div
+							data-work-card
+							data-tags={effectiveTags.join(',')}
+							data-contest-work={isContestWork(work.data) ? 'true' : 'false'}
+						>
+							<WorkCard work={work} />
+						</div>
+					);
+				})
+			}
+		</div>
+
+		<p id="works-empty" class="hidden py-16 text-center text-[var(--color-muted)]">
+			条件に一致する作品がありません。フィルタを変更してください。
+		</p>
+	</div>
+</BaseLayout>
+
+<script>
+	const cards = document.querySelectorAll('[data-work-card]');
+	const emptyMsg = document.getElementById('works-empty');
+
+	function checkEmpty() {
+		if (!emptyMsg) return;
+		const visible = Array.from(cards).some((c) => !c.classList.contains('hidden'));
+		emptyMsg.classList.toggle('hidden', visible);
+	}
+
+	const observer = new MutationObserver(checkEmpty);
+	cards.forEach((card) => {
+		observer.observe(card, { attributes: true, attributeFilter: ['class'] });
+	});
+	checkEmpty();
+</script>
