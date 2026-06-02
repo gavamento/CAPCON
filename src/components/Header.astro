@@ -1,0 +1,134 @@
+---
+const navItems = [
+	{ href: '/', label: 'ホーム' },
+	{ href: '/works', label: '作品一覧' },
+	{ href: '/contests', label: '学内コンテスト' },
+	{ href: '/about', label: 'プロフィール' },
+];
+
+const currentPath = Astro.url.pathname;
+---
+
+<header class="site-header sticky top-0 z-50 border-b border-[var(--color-border)] bg-[var(--color-bg)]">
+	<div class="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
+		<a href="/" class="font-mono text-sm font-medium tracking-tight text-[var(--color-text)]">
+			<span class="text-[var(--color-accent)]">/</span>portfolio
+		</a>
+
+		<!-- デスクトップナビ -->
+		<nav
+			class="hidden items-center gap-1 md:flex"
+			aria-label="メインナビゲーション"
+		>
+			{
+				navItems.map((item) => {
+					const isActive =
+						item.href === '/'
+							? currentPath === '/'
+							: currentPath.startsWith(item.href);
+					return (
+						<a
+							href={item.href}
+							class:list={[
+								'px-3 py-2 text-sm transition-colors',
+								isActive
+									? 'font-medium text-[var(--color-text)] underline decoration-[var(--color-accent)] decoration-2 underline-offset-4'
+									: 'text-[var(--color-muted)] hover:text-[var(--color-text)]',
+							]}
+						>
+							{item.label}
+						</a>
+					);
+				})
+			}
+		</nav>
+
+		<!-- モバイルメニューボタン -->
+		<button
+			type="button"
+			class="mobile-nav-toggle flex h-11 w-11 items-center justify-center border border-[var(--color-border)] text-[var(--color-text)] transition hover:border-[var(--color-muted)] md:hidden"
+			aria-expanded="false"
+			aria-controls="mobile-nav"
+			aria-label="メニューを開く"
+		>
+			<svg class="mobile-nav-icon-open h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+			</svg>
+			<svg class="mobile-nav-icon-close hidden h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+			</svg>
+		</button>
+	</div>
+
+	<!-- モバイルナビ（ドロワー） -->
+	<nav
+		id="mobile-nav"
+		class="mobile-nav-panel hidden border-t border-[var(--color-border)] bg-[var(--color-surface)] md:hidden"
+		aria-label="メインナビゲーション（モバイル）"
+	>
+		<ul class="mx-auto max-w-6xl px-4 py-2 sm:px-6">
+			{
+				navItems.map((item) => {
+					const isActive =
+						item.href === '/'
+							? currentPath === '/'
+							: currentPath.startsWith(item.href);
+					return (
+						<li>
+							<a
+								href={item.href}
+								class:list={[
+									'block border-b border-[var(--color-border)] py-3.5 text-base transition-colors last:border-b-0',
+									isActive
+										? 'font-medium text-[var(--color-accent)]'
+										: 'text-[var(--color-muted)] hover:text-[var(--color-text)]',
+								]}
+							>
+								{item.label}
+							</a>
+						</li>
+					);
+				})
+			}
+		</ul>
+	</nav>
+</header>
+
+<script>
+	const header = document.querySelector('.site-header');
+	if (header) {
+		const toggle = header.querySelector<HTMLButtonElement>('.mobile-nav-toggle');
+		const panel = header.querySelector<HTMLElement>('#mobile-nav');
+		const iconOpen = header.querySelector('.mobile-nav-icon-open');
+		const iconClose = header.querySelector('.mobile-nav-icon-close');
+
+		function setOpen(open: boolean) {
+			if (!toggle || !panel) return;
+			toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+			toggle.setAttribute('aria-label', open ? 'メニューを閉じる' : 'メニューを開く');
+			panel.classList.toggle('hidden', !open);
+			iconOpen?.classList.toggle('hidden', open);
+			iconClose?.classList.toggle('hidden', !open);
+			document.body.classList.toggle('mobile-nav-open', open);
+		}
+
+		toggle?.addEventListener('click', () => {
+			const open = toggle.getAttribute('aria-expanded') !== 'true';
+			setOpen(open);
+		});
+
+		panel?.querySelectorAll('a').forEach((link) => {
+			link.addEventListener('click', () => setOpen(false));
+		});
+
+		document.addEventListener('keydown', (e) => {
+			if (e.key === 'Escape' && toggle?.getAttribute('aria-expanded') === 'true') {
+				setOpen(false);
+			}
+		});
+
+		window.matchMedia('(min-width: 768px)').addEventListener('change', (e) => {
+			if (e.matches) setOpen(false);
+		});
+	}
+</script>

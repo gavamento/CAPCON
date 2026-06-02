@@ -1,0 +1,109 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const skills = {
+	programming: ['C++', 'Python', 'OpenGL', 'DirectX 11/12', 'Git / GitHub', 'ImGui', 'オブジェクト指向設計'],
+	planning: ['企画出し','仕様書作成', 'レベル設計', 'バランス調整', 'プレゼン・企画書作成', 'プロジェクトマネジメント'],
+};
+
+const email = 'akita.reon0811@gmail.com';
+
+const links = [
+	{ label: 'GitHubを見る', href: 'https://github.com/gavamento' },
+	{ label: email, href: `mailto:${email}` },
+];
+---
+
+<BaseLayout title="プロフィール" description="経歴・スキル・連絡先">
+	<div class="mx-auto max-w-3xl px-4 py-12 sm:px-6 sm:py-16">
+		<header class="mb-14 border-b border-[var(--color-border)] pb-12">
+			<div
+				class="mb-6 flex h-20 w-20 items-center justify-center border border-[var(--color-border)] bg-[var(--color-surface)] text-2xl font-bold text-[var(--color-muted)]"
+			>
+				名
+			</div>
+			<p class="section-eyebrow mb-2">Profile</p>
+			<h1 class="text-2xl font-bold text-[var(--color-text)] sm:text-3xl">あなたの名前</h1>
+			<p class="mt-2 font-mono text-sm text-[var(--color-muted)]">
+				HAL東京 ゲーム四年制学科ゲーム制作学部ゲーム制作専攻 — 2028年3月卒業予定
+			</p>
+			<p class="mt-5 max-w-lg text-sm leading-relaxed text-[var(--color-muted)]">
+				ゲームプログラマー・ゲームプランナーを志望。3年間の学びを作品と企画書で証明します。
+				<!-- about.astro の名前・連絡先・リンクは実際の情報に差し替えてください -->
+			</p>
+		</header>
+
+		<section class="mb-12 space-y-4">
+			<h2 class="text-lg font-semibold text-[var(--color-text)]">志望と強み</h2>
+			<p class="leading-relaxed text-[var(--color-muted)]">
+				プログラミングでは C++ を用いたゲームロジック実装とチーム開発でのテクニカルリード経験があります。
+				企画面では 企画出し・企画書作成・仕様書作成からPM経験もあります。両面での経験を活かし、技術と企画の橋渡しができる人材を目指しています。
+			</p>
+		</section>
+
+		<section class="mb-12 grid gap-5 sm:grid-cols-2">
+			<div class="card p-6">
+				<h3 class="mb-4 font-mono text-xs font-medium tracking-wide text-[var(--color-prog)]">
+					PROGRAMMING
+				</h3>
+				<ul class="space-y-2 text-sm text-[var(--color-muted)]">
+					{
+						skills.programming.map((s) => (
+							<li>{s}</li>
+						))
+					}
+				</ul>
+			</div>
+			<div class="card p-6">
+				<h3 class="mb-4 font-mono text-xs font-medium tracking-wide text-[var(--color-planner)]">
+					PLANNING
+				</h3>
+				<ul class="space-y-2 text-sm text-[var(--color-muted)]">
+					{
+						skills.planning.map((s) => (
+							<li>{s}</li>
+						))
+					}
+				</ul>
+			</div>
+		</section>
+
+		<section class="mb-12">
+			<h2 class="mb-5 text-lg font-semibold text-[var(--color-text)]">経歴（概要）</h2>
+			<ol class="space-y-5 border-l border-[var(--color-border)] pl-6">
+				<li>
+					<p class="font-mono text-xs text-[var(--color-accent)]">2024 — 1年次</p>
+					<p class="mt-1 text-sm text-[var(--color-muted)]">C++基礎・2Dゲーム制作・企画演習</p>
+				</li>
+				<li>
+					<p class="font-mono text-xs text-[var(--color-accent)]">2025 — 2年次</p>
+					<p class="mt-1 text-sm text-[var(--color-muted)]">チーム制作・DirectXを用いた3Dゲーム開発・ステートマシン実装</p>
+				</li>
+				<li>
+					<p class="font-mono text-xs text-[var(--color-accent)]">2026 — 3年次</p>
+					<p class="mt-1 text-sm text-[var(--color-muted)]">チーム制作・就活作品の仕上げ</p>
+				</li>
+			</ol>
+		</section>
+
+		<section>
+			<h2 class="mb-4 text-lg font-semibold text-[var(--color-text)]">連絡先</h2>
+			<ul class="flex flex-wrap gap-2">
+				{
+					links.map((link) => (
+						<li>
+							<a
+								href={link.href}
+								target={link.href.startsWith('mailto:') ? undefined : '_blank'}
+								rel={link.href.startsWith('mailto:') ? undefined : 'noopener noreferrer'}
+								class="btn-secondary border-[var(--color-accent)]/50 px-4 py-2 text-sm"
+							>
+								{link.label}
+							</a>
+						</li>
+					))
+				}
+			</ul>
+		</section>
+	</div>
+</BaseLayout>

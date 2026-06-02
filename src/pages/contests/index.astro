@@ -1,0 +1,83 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ContestCard from '../../components/ContestCard.astro';
+import ContestTabs from '../../components/ContestTabs.astro';
+import WorkCard from '../../components/WorkCard.astro';
+import { getAllContests, getContestWorks, parseContestTab } from '../../lib/contests';
+import { getAllWorks } from '../../lib/works';
+
+const contests = await getAllContests();
+const works = await getAllWorks();
+const contestWorks = getContestWorks(works);
+const activeTab = parseContestTab(Astro.url.searchParams.get('tab'));
+---
+
+<BaseLayout
+	title="学内コンテスト"
+	description="HAL東京での学内コンテスト参加記録と、コンテストに出品・提出した作品をまとめています。"
+>
+	<div class="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16">
+		<header class="mb-10">
+			<p class="section-eyebrow mb-2">Contests</p>
+			<h1 class="text-2xl font-bold text-[var(--color-text)] sm:text-3xl">学内コンテスト</h1>
+			<p class="mt-2 max-w-xl text-sm text-[var(--color-muted)]">
+				参加記録と、コンテストで使用した作品をタブで切り替えて閲覧できます。
+			</p>
+		</header>
+
+		<ContestTabs activeTab={activeTab} />
+
+		<section
+			data-contest-panel="contests"
+			class:list={[activeTab !== 'contests' && 'hidden']}
+			aria-hidden={activeTab !== 'contests'}
+		>
+			{
+				contests.length > 0 ? (
+					<>
+						<p class="mb-6 text-sm text-[var(--color-muted)]">全 {contests.length} 件</p>
+						<div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+							{contests.map((contest) => (
+								<ContestCard contest={contest} />
+							))}
+						</div>
+					</>
+				) : (
+					<p class="py-16 text-center text-[var(--color-muted)]">
+						まだコンテストの記録がありません。
+						<code class="text-sm">src/content/contests/</code> に Markdown を追加してください。
+					</p>
+				)
+			}
+		</section>
+
+		<section
+			data-contest-panel="works"
+			class:list={[activeTab !== 'works' && 'hidden']}
+			aria-hidden={activeTab !== 'works'}
+		>
+			{
+				contestWorks.length > 0 ? (
+					<>
+						<p class="mb-6 text-sm text-[var(--color-muted)]">
+							全 {contestWorks.length} 件 —{' '}
+							<a href="/works?type=contest" class="text-[var(--color-accent)] underline-offset-2 hover:underline">
+								作品一覧でコンテスト作品を見る
+							</a>
+						</p>
+						<div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+							{contestWorks.map((work) => (
+								<WorkCard work={work} />
+							))}
+						</div>
+					</>
+				) : (
+					<p class="py-16 text-center text-[var(--color-muted)]">
+						コンテスト出品作品がありません。作品の frontmatter に
+						<code class="text-sm">contestIds</code> を設定してください。
+					</p>
+				)
+			}
+		</section>
+	</div>
+</BaseLayout>

@@ -1,0 +1,82 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { yearGrowthData } from '../data/growth';
+import { getWorksByYear } from '../lib/works';
+import WorkCard from './WorkCard.astro';
+
+interface Props {
+	works: CollectionEntry<'works'>[];
+	showWorks?: boolean;
+	maxWorksPerYear?: number;
+}
+
+const { works, showWorks = true, maxWorksPerYear = 2 } = Astro.props;
+---
+
+<section class="space-y-14" aria-labelledby="growth-heading">
+	<div>
+		<p class="section-eyebrow mb-2">Timeline</p>
+		<h2 id="growth-heading" class="text-2xl font-bold text-[var(--color-text)] sm:text-3xl">
+			成長の軌跡
+		</h2>
+		<p class="mt-2 max-w-md text-sm text-[var(--color-muted)]">
+			1年次から3年次まで、スキルと作品の変化
+		</p>
+	</div>
+
+	<ol class="space-y-10 border-l border-[var(--color-border)] pl-6 sm:space-y-12 sm:pl-10">
+		{
+			yearGrowthData.map((yearData) => {
+				const yearWorks = getWorksByYear(works, yearData.year);
+				const displayWorks = yearWorks.slice(0, maxWorksPerYear);
+				return (
+					<li class="relative">
+						<span
+							class="absolute -left-6 top-0 flex h-5 w-5 -translate-x-1/2 items-center justify-center border border-[var(--color-border)] bg-[var(--color-bg)] font-mono text-[0.625rem] font-medium text-[var(--color-accent)] sm:-left-10 sm:h-7 sm:w-7 sm:text-xs"
+							aria-hidden="true"
+						>
+							{yearData.year}
+						</span>
+						<div class="card overflow-hidden">
+							<a
+								href={`/works?year=year-${yearData.year}`}
+								class="growth-year-link group/link block p-4 sm:p-7"
+								aria-label={`${yearData.label}の作品一覧へ`}
+							>
+								<div class="mb-4 flex flex-wrap items-baseline gap-x-4 gap-y-1">
+									<h3 class="text-lg font-bold text-[var(--color-text)] transition-colors group-hover/link:text-[var(--color-accent)]">
+										{yearData.label}
+									</h3>
+									<span class="font-mono text-xs text-[var(--color-muted)]">{yearData.theme}</span>
+								</div>
+								<ul class="mb-4 space-y-1.5 text-sm text-[var(--color-muted)]">
+									{yearData.skills.map((skill) => (
+										<li class="flex gap-2">
+											<span class="text-[var(--color-border)]" aria-hidden="true">
+												·
+											</span>
+											{skill}
+										</li>
+									))}
+								</ul>
+								<p class="flex items-center justify-between gap-3 font-mono text-xs text-[var(--color-muted)]">
+									<span>作品 {yearWorks.length} 件</span>
+									<span class="text-[var(--color-accent)] opacity-70 transition group-hover/link:opacity-100">
+										一覧へ →
+									</span>
+								</p>
+							</a>
+							{showWorks && displayWorks.length > 0 && (
+								<div class="grid gap-4 border-t border-[var(--color-border)] px-4 pb-4 pt-6 sm:grid-cols-2 sm:px-7 sm:pb-7">
+									{displayWorks.map((work) => (
+										<WorkCard work={work} />
+									))}
+								</div>
+							)}
+						</div>
+					</li>
+				);
+			})
+		}
+	</ol>
+</section>

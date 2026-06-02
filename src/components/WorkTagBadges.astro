@@ -1,0 +1,22 @@
+---
+import type { WorkTagId } from '../lib/tags';
+import { sortTagsForDisplay, tagColorClass, tagLabel } from '../lib/tags';
+
+interface Props {
+	tags: WorkTagId[];
+	/** 詳細ページ用のやや大きめ表示 */
+	size?: 'sm' | 'md';
+}
+
+const { tags, size = 'sm' } = Astro.props;
+const displayTags = sortTagsForDisplay(tags);
+const sizeClass = size === 'md' ? 'px-3 py-1 text-sm' : '';
+---
+
+{
+	displayTags.map((id) => (
+		<span class:list={['tag', tagColorClass(id), sizeClass]}>
+			{tagLabel(id)}
+		</span>
+	))
+}

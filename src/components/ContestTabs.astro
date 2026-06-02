@@ -1,0 +1,93 @@
+---
+import type { ContestTab } from '../lib/contests';
+
+interface Props {
+	activeTab: ContestTab;
+}
+
+const { activeTab } = Astro.props;
+
+const tabs: { value: ContestTab; label: string }[] = [
+	{ value: 'contests', label: '学内コンテスト' },
+	{ value: 'works', label: 'コンテスト作品' },
+];
+---
+
+<div class="contest-tabs mb-10" data-active-tab={activeTab}>
+	<div
+		class="flex w-full border border-[var(--color-border)] bg-[var(--color-surface)] sm:inline-flex sm:w-auto"
+		role="tablist"
+		aria-label="コンテストセクション"
+	>
+		{
+			tabs.map((tab) => (
+				<button
+					type="button"
+					role="tab"
+					data-tab={tab.value}
+					aria-selected={activeTab === tab.value}
+					class:list={[
+						'contest-tab-btn flex-1 border-r border-[var(--color-border)] px-4 py-3 text-sm font-medium transition last:border-r-0 sm:flex-none sm:px-5 sm:py-2.5',
+						activeTab === tab.value
+							? 'bg-[color-mix(in_srgb,var(--color-accent)_12%,transparent)] text-[var(--color-accent)]'
+							: 'text-[var(--color-muted)] hover:text-[var(--color-text)]',
+					]}
+				>
+					{tab.label}
+				</button>
+			))
+		}
+	</div>
+</div>
+
+<script>
+	const container = document.querySelector('.contest-tabs');
+	if (container) {
+		let activeTab = container.getAttribute('data-active-tab') ?? 'contests';
+		const panels = document.querySelectorAll<HTMLElement>('[data-contest-panel]');
+
+		function updateUrl() {
+			const params = new URLSearchParams(window.location.search);
+			if (activeTab === 'contests') {
+				params.delete('tab');
+			} else {
+				params.set('tab', activeTab);
+			}
+			const qs = params.toString();
+			const url = qs ? `${window.location.pathname}?${qs}` : window.location.pathname;
+			window.history.replaceState({}, '', url);
+		}
+
+		function applyTab() {
+			panels.forEach((panel) => {
+				const panelTab = panel.dataset.contestPanel ?? '';
+				const visible = panelTab === activeTab;
+				panel.classList.toggle('hidden', !visible);
+				panel.setAttribute('aria-hidden', visible ? 'false' : 'true');
+			});
+
+			container.querySelectorAll<HTMLButtonElement>('.contest-tab-btn').forEach((btn) => {
+				const val = btn.dataset.tab ?? '';
+				const active = val === activeTab;
+				btn.setAttribute('aria-selected', active ? 'true' : 'false');
+				btn.classList.toggle(
+					'bg-[color-mix(in_srgb,var(--color-accent)_12%,transparent)]',
+					active,
+				);
+				btn.classList.toggle('text-[var(--color-accent)]', active);
+				btn.classList.toggle('text-[var(--color-muted)]', !active);
+			});
+
+			updateUrl();
+		}
+
+		container.querySelectorAll('.contest-tab-btn').forEach((btn) => {
+			btn.addEventListener('click', () => {
+				activeTab = (btn as HTMLButtonElement).dataset.tab ?? 'contests';
+				applyTab();
+			});
+		});
+
+		applyTab();
+	}
+</script>
