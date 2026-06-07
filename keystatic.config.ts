@@ -59,12 +59,21 @@ export default config({
 					description: '一覧・OGP 用の短い説明',
 					multiline: true,
 				}),
+				youtubeId: fields.text({
+					label: 'YouTube 動画 ID',
+					description: 'URL の v= 以降（例: dQw4w9WgXcQ）',
+				}),
 				thumbnail: fields.image({
 					label: 'サムネイル',
 					directory: 'public/images',
 					publicPath: '/images/',
 				}),
 				link: fields.url({ label: '公式リンク' }),
+				driveLink: fields.url({
+					label: 'Googleドライブ',
+					description:
+						'資料フォルダやファイルの共有リンク（リンクを知っている全員に公開しておく）',
+				}),
 				featured: fields.checkbox({
 					label: 'トップに表示',
 					defaultValue: false,
@@ -97,7 +106,8 @@ export default config({
 				}),
 				tags: fields.multiselect({
 					label: 'タグ（年次・職種・種別）',
-					description: '年次は1つ、職種は1つ以上。contestIds がある場合は「コンテスト」タグが自動付与されます',
+					description:
+						'年次は1つ、職種は1つ以上。contestIds がある場合は「コンテスト」タグが自動付与されます',
 					options: [
 						{ label: '1年次', value: 'year-1' },
 						{ label: '2年次', value: 'year-2' },
@@ -142,6 +152,11 @@ export default config({
 					label: '企画書 PDF',
 					directory: 'public/pdf',
 					publicPath: '/pdf/',
+				}),
+				driveLink: fields.url({
+					label: 'Googleドライブ',
+					description:
+						'資料フォルダやファイルの共有リンク（リンクを知っている全員に公開しておく）',
 				}),
 				tech: fields.array(fields.text({ label: '技術・ツール' }), {
 					label: '使用技術・ツール',

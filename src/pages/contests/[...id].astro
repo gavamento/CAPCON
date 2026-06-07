@@ -1,6 +1,7 @@
 ---
 import { getCollection, render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import YouTubeEmbed from '../../components/YouTubeEmbed.astro';
 import WorkCard from '../../components/WorkCard.astro';
 import WorkTagBadges from '../../components/WorkTagBadges.astro';
 import { getWorksForContest } from '../../lib/contests';
@@ -17,7 +18,8 @@ export async function getStaticPaths() {
 
 const { entry } = Astro.props;
 const { Content } = await render(entry);
-const { title, date, tags, organizer, award, summary, thumbnail, link } = entry.data;
+const { title, date, tags, organizer, award, summary, youtubeId, thumbnail, link, driveLink } =
+	entry.data;
 const yearTags = (tags ?? []) as WorkTagId[];
 
 const allWorks = await getAllWorks();
@@ -74,6 +76,23 @@ const thumb = thumbnail ?? '/images/placeholder-year1.svg';
 						</div>
 					)
 				}
+				{
+					driveLink && (
+						<div>
+							<dt class="text-[var(--color-muted)]">資料</dt>
+							<dd>
+								<a
+									href={driveLink}
+									class="font-medium text-[var(--color-accent)] transition hover:underline"
+									target="_blank"
+									rel="noopener noreferrer"
+								>
+									Googleドライブを開く
+								</a>
+							</dd>
+						</div>
+					)
+				}
 			</dl>
 		</header>
 
@@ -83,6 +102,15 @@ const thumb = thumbnail ?? '/images/placeholder-year1.svg';
 			class="mb-12 aspect-video w-full border border-[var(--color-border)] object-cover"
 			loading="lazy"
 		/>
+
+		{
+			youtubeId && (
+				<section class="mb-12">
+					<h2 class="mb-4 text-xl font-semibold text-[var(--color-text)]">動画</h2>
+					<YouTubeEmbed videoId={youtubeId} title={`${title} の動画`} />
+				</section>
+			)
+		}
 
 		<section class="prose-work card mb-12 p-6 sm:p-8">
 			<h2 class="mb-4 text-xl font-semibold text-[var(--color-text)]">参加記録・振り返り</h2>
