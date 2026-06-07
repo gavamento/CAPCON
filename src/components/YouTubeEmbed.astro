@@ -4,7 +4,14 @@ interface Props {
 	title?: string;
 }
 
-const { videoId, title = '作品プレイ動画' } = Astro.props;
+const { videoId: rawVideoId, title = '作品プレイ動画' } = Astro.props;
+
+// URL 貼り付けにも対応（youtu.be / watch?v= / embed/）
+const videoId =
+	rawVideoId.match(
+		/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube-nocookie\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
+	)?.[1] ?? rawVideoId.trim();
+
 const embedUrl = `https://www.youtube-nocookie.com/embed/${videoId}?rel=0`;
 const thumbnailUrl = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
 ---

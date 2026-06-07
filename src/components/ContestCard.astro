@@ -8,7 +8,7 @@ interface Props {
 }
 
 const { contest } = Astro.props;
-const { title, summary, date, tags, award, organizer, thumbnail } = contest.data;
+const { title, summary, date, tags, award, organizer, thumbnail, driveLink } = contest.data;
 const href = `/contests/${contest.id}`;
 const thumb = thumbnail ?? '/images/placeholder-year1.svg';
 const yearTags = (tags ?? []) as WorkTagId[];
@@ -40,5 +40,17 @@ const yearTags = (tags ?? []) as WorkTagId[];
 		</h3>
 		<p class="flex-1 text-sm leading-relaxed text-[var(--color-muted)]">{summary}</p>
 		{organizer && <p class="font-mono text-xs text-[var(--color-muted)]">{organizer}</p>}
+		{
+			driveLink && (
+				<a
+					href={driveLink}
+					class="inline-flex items-center gap-1 font-mono text-xs text-[var(--color-accent)] transition hover:underline"
+					target="_blank"
+					rel="noopener noreferrer"
+				>
+					Googleドライブを開く →
+				</a>
+			)
+		}
 	</div>
 </article>
