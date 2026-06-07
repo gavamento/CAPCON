@@ -47,7 +47,7 @@ const relatedContests = allContests.filter((c) => contestIds?.includes(c.id));
 			href="/works"
 			class="mb-8 inline-flex items-center gap-1 font-mono text-sm text-[var(--color-muted)] transition hover:text-[var(--color-accent)]"
 		>
-			? ???????
+			← 作品一覧に戻る
 		</a>
 
 		<header class="mb-10 space-y-4">
@@ -57,7 +57,7 @@ const relatedContests = allContests.filter((c) => contestIds?.includes(c.id));
 			{
 				relatedContests.length > 0 && (
 					<div class="flex flex-wrap items-center gap-2 text-sm">
-						<span class="text-[var(--color-muted)]">???????:</span>
+						<span class="text-[var(--color-muted)]">出品コンテスト:</span>
 						{relatedContests.map((contest) => (
 							<a
 								href={`/contests/${contest.id}`}
@@ -73,21 +73,21 @@ const relatedContests = allContests.filter((c) => contestIds?.includes(c.id));
 			<p class="text-lg text-[var(--color-muted)]">{summary}</p>
 			<dl class="grid gap-2 text-sm sm:grid-cols-2">
 				<div>
-					<dt class="text-[var(--color-muted)]">??</dt>
+					<dt class="text-[var(--color-muted)]">担当</dt>
 					<dd class="font-medium text-[var(--color-text)]">{role}</dd>
 				</div>
 				<div>
-					<dt class="text-[var(--color-muted)]">???</dt>
+					<dt class="text-[var(--color-muted)]">チーム</dt>
 					<dd class="font-medium text-[var(--color-text)]">{team}</dd>
 				</div>
 				<div>
-					<dt class="text-[var(--color-muted)]">????</dt>
+					<dt class="text-[var(--color-muted)]">制作時期</dt>
 					<dd class="font-medium text-[var(--color-text)]">{date}</dd>
 				</div>
 				{
 					driveLink && (
 						<div>
-							<dt class="text-[var(--color-muted)]">??</dt>
+							<dt class="text-[var(--color-muted)]">資料</dt>
 							<dd>
 								<a
 									href={driveLink}
@@ -95,7 +95,7 @@ const relatedContests = allContests.filter((c) => contestIds?.includes(c.id));
 									target="_blank"
 									rel="noopener noreferrer"
 								>
-									Google???????
+									Googleドライブを開く
 								</a>
 							</dd>
 						</div>
@@ -107,8 +107,8 @@ const relatedContests = allContests.filter((c) => contestIds?.includes(c.id));
 		{
 			youtubeId && (
 				<section class="mb-12">
-					<h2 class="mb-4 text-xl font-semibold text-[var(--color-text)]">?????</h2>
-					<YouTubeEmbed videoId={youtubeId} title={`${title} ?????`} />
+					<h2 class="mb-4 text-xl font-semibold text-[var(--color-text)]">プレイ動画</h2>
+					<YouTubeEmbed videoId={youtubeId} title={`${title} の動画`} />
 				</section>
 			)
 		}
@@ -116,7 +116,7 @@ const relatedContests = allContests.filter((c) => contestIds?.includes(c.id));
 		{
 			galleryImages.length > 0 && (
 				<section class="mb-12">
-					<h2 class="mb-4 text-xl font-semibold text-[var(--color-text)]">?????????</h2>
+					<h2 class="mb-4 text-xl font-semibold text-[var(--color-text)]">スクリーンショット</h2>
 					<div class="grid gap-4 sm:grid-cols-2">
 						{
 							galleryImages.map((img) => (
@@ -136,13 +136,13 @@ const relatedContests = allContests.filter((c) => contestIds?.includes(c.id));
 		{
 			pdf && (
 				<section class="mb-12">
-					<PdfViewer src={pdf} title={`${title} ? ???`} />
+					<PdfViewer src={pdf} title={`${title} 企画書`} />
 				</section>
 			)
 		}
 
 		<section class="mb-12">
-			<h2 class="mb-4 text-xl font-semibold text-[var(--color-text)]">????????</h2>
+			<h2 class="mb-4 text-xl font-semibold text-[var(--color-text)]">使用技術</h2>
 			<ul class="flex flex-wrap gap-2">
 				{
 					tech.map((t) => (
@@ -155,12 +155,12 @@ const relatedContests = allContests.filter((c) => contestIds?.includes(c.id));
 		</section>
 
 		<section class="mb-12">
-			<h2 class="mb-4 text-xl font-semibold text-[var(--color-text)]">????????</h2>
+			<h2 class="mb-4 text-xl font-semibold text-[var(--color-text)]">工夫・学び</h2>
 			<ul class="space-y-2">
 				{
 					highlights.map((h) => (
 						<li class="flex gap-3 text-[var(--color-muted)]">
-							<span class="mt-2 font-mono text-[var(--color-accent)]" aria-hidden="true">?</span>
+							<span class="mt-2 font-mono text-[var(--color-accent)]" aria-hidden="true">—</span>
 							<span>{h}</span>
 						</li>
 					))
@@ -169,7 +169,7 @@ const relatedContests = allContests.filter((c) => contestIds?.includes(c.id));
 		</section>
 
 		<section class="prose-work card p-6 sm:p-8">
-			<h2 class="mb-4 text-xl font-semibold text-[var(--color-text)]">??</h2>
+			<h2 class="mb-4 text-xl font-semibold text-[var(--color-text)]">詳細</h2>
 			<Content />
 		</section>
 	</article>
