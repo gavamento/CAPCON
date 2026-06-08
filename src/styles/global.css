@@ -3,16 +3,66 @@
 @theme {
 	--font-sans: "IBM Plex Sans JP", "Hiragino Sans", "Meiryo", sans-serif;
 	--font-mono: "IBM Plex Mono", "Consolas", monospace;
+}
+
+/* ===== カラーテーマ =====
+   既定はライト。OS/ブラウザが dark を指定すると自動でダークへ切り替わる。
+   配色はすべて CSS 変数経由のため、ここを変えれば全ページに反映される。 */
+:root {
+	color-scheme: light dark;
+
+	/* ライト（生成り白ベース・暖色系） */
+	--color-bg: #f6f3ee;
+	--color-surface: #fffdf9;
+	--color-surface-elevated: #ffffff;
+	--color-border: #e0d9cd;
+	--color-text: #221f1b;
+	--color-muted: #645c50; /* 本文グレー：AA 6:1 確保 */
+	--color-accent: #b04a1f; /* テキストでも 4.5:1 を満たす濃いオレンジ */
+	--color-accent-dim: #8f3a14;
+	--color-prog: #2f7d5b;
+	--color-planner: #8a6d0f;
+	--color-on-accent: #ffffff; /* アクセント面の上に載せる文字色 */
+}
+
+/* システム設定がダーク、かつユーザーが「ライト」を明示選択していない場合。
+   JS 無効時のフォールバックも兼ねる。
+   ※ ダークの値は下の [data-theme="dark"] と必ず一致させること。 */
+@media (prefers-color-scheme: dark) {
+	:root:not([data-theme="light"]) {
+		--color-bg: #121110;
+		--color-surface: #1a1917;
+		--color-surface-elevated: #242220;
+		--color-border: #3a3632;
+		--color-text: #ece6dc;
+		--color-muted: #a8a092; /* #9a9288 から引き上げてコントラスト改善 */
+		--color-accent: #d4653a;
+		--color-accent-dim: #a84e2c;
+		--color-prog: #6b9e82;
+		--color-planner: #c9a227;
+		--color-on-accent: #121110;
+		color-scheme: dark;
+	}
+}
+
+/* トグルボタンによる明示指定（システム設定を上書き） */
+:root[data-theme="dark"] {
 	--color-bg: #121110;
 	--color-surface: #1a1917;
 	--color-surface-elevated: #242220;
 	--color-border: #3a3632;
 	--color-text: #ece6dc;
-	--color-muted: #9a9288;
+	--color-muted: #a8a092;
 	--color-accent: #d4653a;
 	--color-accent-dim: #a84e2c;
 	--color-prog: #6b9e82;
 	--color-planner: #c9a227;
+	--color-on-accent: #121110;
+	color-scheme: dark;
+}
+
+:root[data-theme="light"] {
+	color-scheme: light;
 }
 
 html {
@@ -65,7 +115,7 @@ body.mobile-nav-open {
 	padding: 0.75rem 1.5rem;
 	font-size: 0.875rem;
 	font-weight: 600;
-	color: #121110;
+	color: var(--color-on-accent);
 	transition: background-color 0.15s ease;
 }
 
