@@ -8,8 +8,7 @@ import markdoc from '@astrojs/markdoc';
 import keystatic from '@keystatic/astro';
 
 // Keystatic は開発時のみ有効（preview / build では SSR ルートが含まれない）
-const astroCommand = process.env.npm_lifecycle_event ?? process.argv[2];
-const enableKeystatic = astroCommand === 'dev';
+const enableKeystatic = process.argv.includes('dev');
 
 // https://astro.build/config
 export default defineConfig({

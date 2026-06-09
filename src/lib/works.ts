@@ -1,4 +1,5 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
+import { publicAssetUrl } from './assets';
 import {
 	compareWorksByTags,
 	getYearFromTags,
@@ -13,29 +14,28 @@ const DEFAULT_WORK_THUMBNAIL = '/images/placeholder-year1.svg';
 
 /** 一覧・カード用サムネイル（未設定時は先頭スクリーンショット、なければプレースホルダー） */
 export function getWorkThumbnail(data: WorkData): string {
-	if (data.thumbnail) return data.thumbnail;
-	const firstImage = data.images?.[0];
-	if (firstImage) return firstImage;
-	return DEFAULT_WORK_THUMBNAIL;
+	const src = data.thumbnail ?? data.images?.[0] ?? DEFAULT_WORK_THUMBNAIL;
+	return publicAssetUrl(src);
 }
 
-/** 学内コンテスト（contests コレクション）への出品作品 */
+/** 作品詳細のギャラリー画像（サムネイル未設定時は先頭スクリーンショットのみ） */
+export function getWorkGalleryImages(data: WorkData): string[] {
+	const images = data.images?.length ? data.images : data.thumbnail ? [data.thumbnail] : [];
+	return images.map(publicAssetUrl);
+}
+
+/** 学内コンテストへの出品作品（contest フィールドが設定されているか） */
 export function isSchoolContestWork(data: WorkData): boolean {
-	return (data.contestIds?.length ?? 0) > 0;
+	return !!data.contest?.trim();
 }
 
-/** contestIds があれば contest タグを付与（表示・フィルター用） */
+/** contest フィールドがあれば contest タグを付与（表示・フィルター用） */
 export function getEffectiveWorkTags(data: WorkData): WorkTagId[] {
 	const tags = [...data.tags.filter((t) => t !== 'contest')];
 	if (isSchoolContestWork(data)) {
 		tags.push('contest');
 	}
 	return tags;
-}
-
-/** @deprecated 互換用。学内コンテスト出品作かどうか */
-export function isContestWork(data: WorkData): boolean {
-	return isSchoolContestWork(data);
 }
 
 export async function getAllWorks(): Promise<WorkEntry[]> {

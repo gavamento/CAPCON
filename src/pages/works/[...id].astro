@@ -4,8 +4,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import YouTubeEmbed from '../../components/YouTubeEmbed.astro';
 import PdfViewer from '../../components/PdfViewer.astro';
 import WorkTagBadges from '../../components/WorkTagBadges.astro';
-import { getAllContests } from '../../lib/contests';
-import { getEffectiveWorkTags } from '../../lib/works';
+import { getEffectiveWorkTags, getWorkGalleryImages } from '../../lib/works';
 
 export async function getStaticPaths() {
 	const works = await getCollection('works');
@@ -20,25 +19,21 @@ const { Content } = await render(entry);
 const {
 	title,
 	tags: _tags,
-	contestIds,
+	contest,
+	award,
 	role,
 	team,
 	date,
 	summary,
 	youtubeId,
-	images,
 	pdf,
 	tech,
 	highlights,
-	thumbnail,
 	driveLink,
 } = entry.data;
 
-const galleryImages = images?.length ? images : thumbnail ? [thumbnail] : [];
+const galleryImages = getWorkGalleryImages(entry.data);
 const displayTags = getEffectiveWorkTags(entry.data);
-
-const allContests = await getAllContests();
-const relatedContests = allContests.filter((c) => contestIds?.includes(c.id));
 ---
 
 <BaseLayout title={title} description={summary}>
@@ -55,17 +50,16 @@ const relatedContests = allContests.filter((c) => contestIds?.includes(c.id));
 				<WorkTagBadges tags={displayTags} size="md" />
 			</div>
 			{
-				relatedContests.length > 0 && (
+				contest && (
 					<div class="flex flex-wrap items-center gap-2 text-sm">
 						<span class="text-[var(--color-muted)]">出品コンテスト:</span>
-						{relatedContests.map((contest) => (
-							<a
-								href={`/contests/${contest.id}`}
-								class="tag tag--contest px-3 py-1 transition hover:opacity-90"
-							>
-								{contest.data.title}
-							</a>
-						))}
+						<span class="tag tag--contest px-3 py-1">{contest}</span>
+						{award && (
+							<>
+								<span class="text-[var(--color-muted)]">結果:</span>
+								<span class="font-medium text-[var(--color-text)]">{award}</span>
+							</>
+						)}
 					</div>
 				)
 			}
