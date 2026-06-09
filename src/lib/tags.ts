@@ -61,7 +61,7 @@ export const TAG_REGISTRY: Record<WorkTagId, TagMeta> = {
 	},
 	contest: {
 		id: 'contest',
-		label: 'コンテスト',
+		label: '学内コンテスト',
 		group: 'type',
 		sortOrder: 20,
 		colorClass: 'tag--contest',
@@ -86,7 +86,7 @@ export const CATEGORY_FILTER_OPTIONS = [
 
 export const TYPE_FILTER_OPTIONS = [
 	{ value: 'all', label: 'すべて' },
-	{ value: 'contest', label: 'コンテスト' },
+	{ value: 'contest', label: '学内コンテスト' },
 	{ value: 'regular', label: '通常' },
 ] as const;
 

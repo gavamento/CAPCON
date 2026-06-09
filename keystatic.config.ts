@@ -107,14 +107,14 @@ export default config({
 				tags: fields.multiselect({
 					label: 'タグ（年次・職種・種別）',
 					description:
-						'年次は1つ、職種は1つ以上。contestIds がある場合は「コンテスト」タグが自動付与されます',
+						'年次は1つ、職種は1つ以上。contestIds がある場合は「学内コンテスト」タグが自動付与されます',
 					options: [
 						{ label: '1年次', value: 'year-1' },
 						{ label: '2年次', value: 'year-2' },
 						{ label: '3年次', value: 'year-3' },
 						{ label: 'プログラマー', value: 'programmer' },
 						{ label: 'プランナー', value: 'planner' },
-						{ label: 'コンテスト', value: 'contest' },
+						{ label: '学内コンテスト', value: 'contest' },
 					],
 				}),
 				role: fields.text({ label: '担当' }),
