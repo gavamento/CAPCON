@@ -1,5 +1,5 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
-import { isContestWork, type WorkEntry } from './works';
+import { isSchoolContestWork, type WorkEntry } from './works';
 
 export type ContestEntry = CollectionEntry<'contests'>;
 
@@ -9,7 +9,7 @@ export async function getAllContests(): Promise<ContestEntry[]> {
 }
 
 export function getContestWorks(works: WorkEntry[]): WorkEntry[] {
-	return works.filter((w) => isContestWork(w.data));
+	return works.filter((w) => isSchoolContestWork(w.data));
 }
 
 export function getWorksForContest(works: WorkEntry[], contestId: string): WorkEntry[] {
