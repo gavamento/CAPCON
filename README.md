@@ -64,8 +64,8 @@ title: "作品タイトル"
 tags:
   - year-2
   - programmer
-contestIds:
-  - hal-event-week
+contest: "HAL Event Week（2年次）"  # 学内コンテスト出品作のみ
+award: "ビジュアル賞受賞"            # 任意
 role: "メインプログラマー"
 team: "4人チーム"
 date: "2025-06"
@@ -96,35 +96,16 @@ featured: true
 
 動画 URL `https://www.youtube.com/watch?v=XXXXXXXX` の `XXXXXXXX` 部分を `youtubeId` に設定します。
 
-### 4. 学内コンテストの追加
+### 4. 学内コンテスト出品作
 
-**コンテスト（イベント）** — `src/content/contests/` に `.md` を追加します。ファイル名（拡張子除く）が ID になります。
-
-```yaml
----
-title: "HAL Game Expo 2024"
-date: "2024-12"
-tags:
-  - year-1
-organizer: "HAL東京"
-award: "参加"
-summary: "一覧に表示する短い説明"
-thumbnail: "/images/contest.png"
-link: "https://example.com"  # 任意
-featured: false
----
-
-参加記録や振り返りを本文に書きます。
-```
-
-**コンテスト作品** — 既存の `src/content/works/` の frontmatter に、紐づけるコンテスト ID を指定します。
+学内コンテストは独立したページではなく、作品一覧の一部として扱います。出品作には作品の frontmatter に `contest`（コンテスト名）を設定するだけです。
 
 ```yaml
-contestIds:
-  - "hal-game-expo-2024"
+contest: "HAL Event Week（2年次）"  # 出品したコンテスト名
+award: "ビジュアル賞受賞"            # 結果・受賞（任意）
 ```
 
-`/contests` ページの「学内コンテスト」タブにイベント、「コンテスト作品」タブに `contestIds` のある作品が表示されます。
+`contest` を設定すると「学内コンテスト」タグが自動付与され、作品一覧の「種別」フィルタで絞り込めます。作品詳細ページには出品コンテスト名と結果が表示されます。
 
 ### 5. プロフィール編集
 
@@ -138,8 +119,7 @@ contestIds:
 
 ```
 src/
-  content/works/     # 作品データ（Markdown）
-  content/contests/  # 学内コンテスト（Markdown）
+  content/works/     # 作品データ（Markdown／学内コンテスト出品作含む）
   components/        # UI コンポーネント
   layouts/           # 共通レイアウト
   pages/             # ページ
