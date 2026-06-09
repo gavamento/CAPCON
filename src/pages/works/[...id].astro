@@ -114,12 +114,19 @@ const displayTags = getEffectiveWorkTags(entry.data);
 					<div class="grid gap-4 sm:grid-cols-2">
 						{
 							galleryImages.map((img) => (
-								<img
-									src={img}
-									alt=""
-									class="border border-[var(--color-border)] object-cover"
-									loading="lazy"
-								/>
+								<button
+									type="button"
+									class="lightbox-trigger group block cursor-zoom-in overflow-hidden border border-[var(--color-border)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)]"
+									data-src={img}
+									aria-label="スクリーンショットを拡大表示"
+								>
+									<img
+										src={img}
+										alt=""
+										class="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+										loading="lazy"
+									/>
+								</button>
 							))
 						}
 					</div>
@@ -167,4 +174,115 @@ const displayTags = getEffectiveWorkTags(entry.data);
 			<Content />
 		</section>
 	</article>
+
+	{
+		galleryImages.length > 0 && (
+			<div
+				id="lightbox"
+				class="fixed inset-0 z-50 hidden items-center justify-center bg-black/85 p-4 backdrop-blur-sm"
+				role="dialog"
+				aria-modal="true"
+				aria-label="スクリーンショット拡大表示"
+			>
+				<button
+					type="button"
+					id="lightbox-close"
+					class="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-2xl text-white transition hover:bg-white/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+					aria-label="閉じる"
+				>
+					×
+				</button>
+				<img
+					id="lightbox-image"
+					src=""
+					alt=""
+					class="max-h-[90vh] max-w-[90vw] cursor-zoom-in object-contain transition-transform duration-200"
+				/>
+			</div>
+		)
+	}
 </BaseLayout>
+
+<script>
+	const lightbox = document.getElementById('lightbox');
+	const lightboxImage = document.getElementById('lightbox-image') as HTMLImageElement | null;
+	const closeButton = document.getElementById('lightbox-close');
+	const triggers = document.querySelectorAll<HTMLButtonElement>('.lightbox-trigger');
+
+	if (lightbox && lightboxImage) {
+		const ZOOM_SCALE = 2.5;
+		let zoomed = false;
+
+		const resetZoom = () => {
+			zoomed = false;
+			lightboxImage.style.transform = '';
+			lightboxImage.style.cursor = 'zoom-in';
+		};
+
+		const open = (src: string) => {
+			lightboxImage.src = src;
+			resetZoom();
+			lightbox.classList.remove('hidden');
+			lightbox.classList.add('flex');
+			document.body.style.overflow = 'hidden';
+		};
+
+		const close = () => {
+			lightbox.classList.add('hidden');
+			lightbox.classList.remove('flex');
+			lightboxImage.src = '';
+			resetZoom();
+			document.body.style.overflow = '';
+		};
+
+		// クリック位置を中心にズームのオン/オフを切り替え
+		const toggleZoom = (event: MouseEvent) => {
+			if (zoomed) {
+				resetZoom();
+				return;
+			}
+			const rect = lightboxImage.getBoundingClientRect();
+			const offsetX = ((event.clientX - rect.left) / rect.width - 0.5) * 100;
+			const offsetY = ((event.clientY - rect.top) / rect.height - 0.5) * 100;
+			zoomed = true;
+			lightboxImage.style.transformOrigin = `${event.clientX - rect.left}px ${event.clientY - rect.top}px`;
+			lightboxImage.style.transform = `scale(${ZOOM_SCALE}) translate(${-offsetX / ZOOM_SCALE}%, ${-offsetY / ZOOM_SCALE}%)`;
+			lightboxImage.style.cursor = 'zoom-out';
+		};
+
+		// ズーム中はカーソル移動に合わせて画像をパン
+		const panImage = (event: MouseEvent) => {
+			if (!zoomed) return;
+			const rect = lightboxImage.getBoundingClientRect();
+			const percentX = (event.clientX - rect.left) / rect.width;
+			const percentY = (event.clientY - rect.top) / rect.height;
+			const moveX = (0.5 - percentX) * (ZOOM_SCALE - 1) * 100;
+			const moveY = (0.5 - percentY) * (ZOOM_SCALE - 1) * 100;
+			lightboxImage.style.transformOrigin = 'center center';
+			lightboxImage.style.transform = `scale(${ZOOM_SCALE}) translate(${moveX / ZOOM_SCALE}%, ${moveY / ZOOM_SCALE}%)`;
+		};
+
+		triggers.forEach((trigger) => {
+			trigger.addEventListener('click', () => {
+				const src = trigger.dataset.src;
+				if (src) open(src);
+			});
+		});
+
+		closeButton?.addEventListener('click', close);
+
+		lightboxImage.addEventListener('click', (event) => {
+			event.stopPropagation();
+			toggleZoom(event);
+		});
+		lightboxImage.addEventListener('mousemove', panImage);
+
+		lightbox.addEventListener('click', (event) => {
+			if (event.target === lightbox) close();
+		});
+
+		document.addEventListener('keydown', (event) => {
+			if (event.key === 'Escape' && !lightbox.classList.contains('hidden')) close();
+		});
+	}
+</script>
