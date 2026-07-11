@@ -1,0 +1,173 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import HeroCodeAccent from '../components/HeroCodeAccent.astro';
+import SkillMatrix from '../components/SkillMatrix.astro';
+import StatStrip from '../components/StatStrip.astro';
+import ContributionHeatmap from '../components/ContributionHeatmap.astro';
+import {
+	getAllWorks,
+	getWorksByIds,
+	getWorkTitleMap,
+	getCuratedDevisedCases,
+	getGithubShowcaseWork,
+} from '../lib/works';
+import { getContributionGraph } from '../data/contributions';
+import { skillCategories, capabilities } from '../data/skills';
+
+const works = await getAllWorks();
+const workTitleById = getWorkTitleMap(works);
+const showcase = getGithubShowcaseWork(works);
+const showcaseGraph = showcase ? getContributionGraph(showcase.id) : undefined;
+const devisedCases = getCuratedDevisedCases(works, { max: 5 });
+const githubUrl = 'https://github.com/gavamento';
+
+// 開発の進め方（ページ内定義）
+const processSteps = [
+	{ k: '01', title: '理解・設計', body: '要件と制約を整理し、拡張しやすいクラス設計に落とし込む。' },
+	{ k: '02', title: '小さく実装', body: 'develop ブランチで小さく作り、こまめにコミット・レビューする。' },
+	{ k: '03', title: '計測・改善', body: '実際に動かして計測し、ボトルネックを最適化・デバッグする。' },
+	{ k: '04', title: '共有・記録', body: 'チームに共有し、知見をドキュメント化して再利用できるようにする。' },
+];
+---
+
+<BaseLayout
+	title="エンジニアリング"
+	description="プログラマーとしてできること・技術スタック・開発プロセス・代表的な工夫"
+>
+	<section class="hero-glow border-b border-[var(--color-border)]" data-reveal>
+		<div class="mx-auto max-w-5xl px-4 py-12 sm:px-6 sm:py-20">
+			<HeroCodeAccent variant="prompt" text="cat skills.md" class="mb-5" />
+			<h1 class="max-w-2xl font-[var(--font-display)] text-[1.625rem] font-bold leading-[1.3] tracking-tight text-[var(--color-text)] sm:text-5xl">
+				できることと、<br class="hidden sm:block" />つくり方。
+			</h1>
+			<p class="mt-6 max-w-xl text-base leading-relaxed text-[var(--color-muted)]">
+				C++ を中心に、ゲームのコアロジック実装からチーム開発まで。技術スタック・開発プロセス・実際に効いた工夫を、作品とともに示します。
+			</p>
+		</div>
+	</section>
+
+	<!-- できること -->
+	<section class="border-b border-[var(--color-border)] py-14 sm:py-20" data-reveal>
+		<div class="mx-auto max-w-5xl px-4 sm:px-6">
+			<p class="section-eyebrow mb-2">What I can build</p>
+			<h2 class="mb-8 font-[var(--font-display)] text-2xl font-bold text-[var(--color-text)]">できること</h2>
+			<div class="grid gap-5 sm:grid-cols-2">
+				{
+					capabilities.map((cap) => (
+						<div class="card p-6" data-reveal>
+							<h3 class="font-[var(--font-display)] text-lg font-bold text-[var(--color-text)]">
+								{cap.title}
+							</h3>
+							<p class="mt-2 text-sm leading-relaxed text-[var(--color-muted)]">{cap.description}</p>
+							{cap.workIds && cap.workIds.length > 0 && (
+								<p class="mt-3 flex flex-wrap gap-x-3 gap-y-1">
+									{getWorksByIds(works, cap.workIds).map((w) => (
+										<a href={`/works/${w.id}`} class="skill-evidence-link">
+											{w.data.title} →
+										</a>
+									))}
+								</p>
+							)}
+						</div>
+					))
+				}
+			</div>
+		</div>
+	</section>
+
+	<!-- 技術スタック -->
+	<section class="border-b border-[var(--color-border)] py-14 sm:py-20" data-reveal>
+		<div class="mx-auto max-w-5xl px-4 sm:px-6">
+			<p class="section-eyebrow mb-2">Tech stack</p>
+			<h2 class="mb-8 font-[var(--font-display)] text-2xl font-bold text-[var(--color-text)]">技術スタック</h2>
+			<SkillMatrix categories={skillCategories} workTitleById={workTitleById} />
+		</div>
+	</section>
+
+	<!-- 開発プロセス -->
+	<section class="border-b border-[var(--color-border)] py-14 sm:py-20" data-reveal>
+		<div class="mx-auto max-w-5xl px-4 sm:px-6">
+			<p class="section-eyebrow mb-2">How I work</p>
+			<h2 class="mb-8 font-[var(--font-display)] text-2xl font-bold text-[var(--color-text)]">開発プロセス</h2>
+			<ol class="grid gap-4 sm:grid-cols-2">
+				{
+					processSteps.map((s) => (
+						<li class="card p-5" data-reveal>
+							<span class="font-mono text-xs text-[var(--color-gold-dim)]">{s.k}</span>
+							<h3 class="mt-1 font-[var(--font-display)] text-base font-bold text-[var(--color-text)]">
+								{s.title}
+							</h3>
+							<p class="mt-1 text-sm leading-relaxed text-[var(--color-muted)]">{s.body}</p>
+						</li>
+					))
+				}
+			</ol>
+		</div>
+	</section>
+
+	<!-- 代表的な工夫 -->
+	{
+		devisedCases.length > 0 && (
+			<section class="border-b border-[var(--color-border)] py-14 sm:py-20" data-reveal>
+				<div class="mx-auto max-w-5xl px-4 sm:px-6">
+					<p class="section-eyebrow mb-2">Highlights</p>
+					<h2 class="mb-8 font-[var(--font-display)] text-2xl font-bold text-[var(--color-text)]">
+						代表的な工夫
+					</h2>
+					<div class="space-y-4">
+						{devisedCases.map((c) => (
+							<div class="card p-5 sm:p-6" data-reveal>
+								<div class="flex flex-wrap items-baseline justify-between gap-2">
+									<h3 class="font-[var(--font-display)] text-lg font-bold text-[var(--color-text)]">
+										{c.title}
+									</h3>
+									<a href={`/works/${c.workId}`} class="skill-evidence-link">
+										{c.workTitle} →
+									</a>
+								</div>
+								<dl class="mt-3 space-y-3 text-sm">
+									<div class="devised-row">
+										<dt class="devised-label">課題</dt>
+										<dd class="text-[var(--color-muted)]">{c.challenge}</dd>
+									</div>
+									<div class="devised-row">
+										<dt class="devised-label">工夫</dt>
+										<dd class="text-[var(--color-muted)]">{c.approach}</dd>
+									</div>
+									<div class="devised-row">
+										<dt class="devised-label">成果</dt>
+										<dd class="text-[var(--color-text)]">
+											{c.result}
+											{c.metric && <span class="devised-metric">{c.metric}</span>}
+										</dd>
+									</div>
+								</dl>
+							</div>
+						))}
+					</div>
+				</div>
+			</section>
+		)
+	}
+
+	<!-- GitHub 実績 -->
+	{
+		showcase && (
+			<section class="py-14 sm:py-20" data-reveal>
+				<div class="mx-auto max-w-5xl px-4 sm:px-6">
+					<p class="section-eyebrow mb-2">On GitHub</p>
+					<h2 class="mb-8 font-[var(--font-display)] text-2xl font-bold text-[var(--color-text)]">
+						GitHub 実績
+					</h2>
+					{showcase.data.stats && showcase.data.stats.length > 0 && (
+						<StatStrip stats={showcase.data.stats} class="mb-6" />
+					)}
+					{showcaseGraph && <ContributionHeatmap graph={showcaseGraph} class="mb-6" />}
+					<a href={githubUrl} class="btn-primary" target="_blank" rel="noopener noreferrer">
+						GitHub を見る
+					</a>
+				</div>
+			</section>
+		)
+	}
+</BaseLayout>

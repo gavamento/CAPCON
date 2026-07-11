@@ -1,0 +1,43 @@
+---
+// 「エンジニアらしさ」を上品に添えるコード装飾。端末風に振り切らず控えめに。
+//   caret   … セクション見出し風（"— " 付き）＋点滅キャレット（ヒーローの eyebrow 置換用）
+//   comment … 淡いコードコメント風タグライン（// 〜）
+//   prompt  … 端末プロンプト風（~/portfolio $ 〜）＋点滅キャレット
+interface Props {
+	variant?: 'caret' | 'comment' | 'prompt';
+	text: string;
+	class?: string;
+}
+
+const { variant = 'caret', text, class: className } = Astro.props;
+---
+
+{
+	variant === 'caret' && (
+		<p class:list={['section-eyebrow', className]}>
+			{text}
+			<span class="code-caret" aria-hidden="true" />
+		</p>
+	)
+}
+{
+	variant === 'comment' && (
+		<p class:list={['code-comment', className]}>
+			<span class="code-comment-slash" aria-hidden="true">
+				//{' '}
+			</span>
+			{text}
+		</p>
+	)
+}
+{
+	variant === 'prompt' && (
+		<p class:list={['code-prompt', className]}>
+			<span class="code-prompt-sign" aria-hidden="true">
+				~/portfolio ${' '}
+			</span>
+			{text}
+			<span class="code-caret" aria-hidden="true" />
+		</p>
+	)
+}

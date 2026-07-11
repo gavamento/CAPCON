@@ -1,10 +1,11 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import SkillMatrix from '../components/SkillMatrix.astro';
+import { skillCategories } from '../data/skills';
+import { getAllWorks, getWorkTitleMap } from '../lib/works';
 
-const skills = {
-	programming: ['C++', 'Python', 'OpenGL', 'DirectX 11/12', 'Git / GitHub', 'ImGui', '設計パターン', 'HTML/CSS'],
-	planning: ['企画出し','仕様書作成', 'レベル設計', 'バランス調整', 'プレゼン・企画書作成', 'プロジェクトマネジメント'],
-};
+const works = await getAllWorks();
+const workTitleById = getWorkTitleMap(works);
 
 const email = 'akita.reon0811@gmail.com';
 
@@ -25,7 +26,7 @@ const links = [
 				class="mb-6 h-24 w-24 border border-[var(--color-border)] object-cover sm:h-28 sm:w-28"
 			/>
 			<p class="section-eyebrow mb-2">Profile</p>
-			<h1 class="text-2xl font-bold text-[var(--color-text)] sm:text-3xl">秋田蓮音</h1>
+			<h1 class="font-[var(--font-display)] text-2xl font-bold text-[var(--color-text)] sm:text-3xl">秋田蓮音</h1>
 			<p class="mt-2 font-mono text-sm text-[var(--color-muted)]">
 				HAL東京 ゲーム四年制学科ゲーム制作学部ゲーム制作専攻 — 2028年3月卒業予定
 			</p>
@@ -35,12 +36,12 @@ const links = [
 		</header>
 
 		<section class="mb-12 space-y-4">
-			<h2 class="text-lg font-semibold text-[var(--color-text)]">志望と強み</h2>
+			<h2 class="font-[var(--font-display)] text-lg font-semibold text-[var(--color-text)]">志望と強み</h2>
 			<p class="leading-relaxed text-[var(--color-muted)]">
 				プログラミングでは C++ を用いたゲームロジック実装とチーム開発でのテクニカルリード経験があります。
 				企画面では 企画出し・企画書作成・仕様書作成からPM経験もあります。両面での経験を活かし、技術と企画の橋渡しができる人材を目指しています。
 			</p>
-			<h2 class="text-lg font-semibold text-[var(--color-text)]">思い</h2>
+			<h2 class="font-[var(--font-display)] text-lg font-semibold text-[var(--color-text)]">思い</h2>
 			<p class="leading-relaxed text-[var(--color-muted)]">
 				カプコンのエンジニアへのインタビュー記事で、「AIはクリエイターのポテンシャルを開放するために活用している」という言葉に出会いました。
 				AIが台頭する今、私も同じ考えを持っています。AIはあくまでツールであり、それを使う人間の感性とクリエイティビティこそが本質だと。
@@ -48,35 +49,18 @@ const links = [
 			</p>
 		</section>
 
-		<section class="mb-12 grid gap-5 sm:grid-cols-2">
-			<div class="card p-6">
-				<h3 class="mb-4 font-mono text-xs font-medium tracking-wide text-[var(--color-prog)]">
-					PROGRAMMING
-				</h3>
-				<ul class="space-y-2 text-sm text-[var(--color-muted)]">
-					{
-						skills.programming.map((s) => (
-							<li>{s}</li>
-						))
-					}
-				</ul>
+		<section class="mb-12">
+			<div class="mb-5 flex items-end justify-between gap-3">
+				<h2 class="font-[var(--font-display)] text-lg font-semibold text-[var(--color-text)]">スキル</h2>
+				<a href="/engineering" class="font-mono text-xs text-[var(--color-accent)] hover:underline">
+					技術の詳細を見る →
+				</a>
 			</div>
-			<div class="card p-6">
-				<h3 class="mb-4 font-mono text-xs font-medium tracking-wide text-[var(--color-planner)]">
-					PLANNING
-				</h3>
-				<ul class="space-y-2 text-sm text-[var(--color-muted)]">
-					{
-						skills.planning.map((s) => (
-							<li>{s}</li>
-						))
-					}
-				</ul>
-			</div>
+			<SkillMatrix categories={skillCategories} workTitleById={workTitleById} compact />
 		</section>
 
 		<section class="mb-12">
-			<h2 class="mb-5 text-lg font-semibold text-[var(--color-text)]">経歴（概要）</h2>
+			<h2 class="mb-5 font-[var(--font-display)] text-lg font-semibold text-[var(--color-text)]">経歴（概要）</h2>
 			<ol class="space-y-5 border-l border-[var(--color-border)] pl-6">
 				<li>
 					<p class="font-mono text-xs text-[var(--color-accent)]">2024 — 1年次</p>
@@ -94,7 +78,7 @@ const links = [
 		</section>
 
 		<section>
-			<h2 class="mb-4 text-lg font-semibold text-[var(--color-text)]">連絡先</h2>
+			<h2 class="mb-4 font-[var(--font-display)] text-lg font-semibold text-[var(--color-text)]">連絡先</h2>
 			<ul class="flex flex-wrap gap-2">
 				{
 					links.map((link) => (

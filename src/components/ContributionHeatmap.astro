@@ -1,0 +1,43 @@
+---
+// GitHub 風の貢献ヒートマップ（実データを CSS グリッドで描画＝テーマ追従・高精細）。
+import type { ContributionGraph } from '../data/contributions';
+
+interface Props {
+	graph: ContributionGraph;
+	heading?: string;
+	compact?: boolean;
+	class?: string;
+}
+
+const { graph, heading = 'GitHub Contributions', compact = false, class: className } = Astro.props;
+const totalDisplay = graph.total.toLocaleString('en-US');
+---
+
+<figure class:list={['heatmap card', compact && 'heatmap--compact', className]} data-reveal>
+	<figcaption class="heatmap-head">
+		<span class="section-eyebrow">{heading}</span>
+		<span class="heatmap-total">
+			<span class="count-up" data-count-to={graph.total} data-count-suffix=" contributions">
+				{totalDisplay} contributions
+			</span>
+		</span>
+	</figcaption>
+
+	<div class="heatmap-scroll">
+		<div class="heatmap-grid" role="img" aria-label={`${graph.total} contributions`}>
+			{graph.weeks.map((week) => week.map((level) => <span class="heatmap-cell" data-level={level} />))}
+		</div>
+	</div>
+
+	{graph.periodLabel && <p class="heatmap-period">{graph.periodLabel}</p>}
+
+	<div class="heatmap-legend" aria-hidden="true">
+		<span>Less</span>
+		<span class="heatmap-cell" data-level="0"></span>
+		<span class="heatmap-cell" data-level="1"></span>
+		<span class="heatmap-cell" data-level="2"></span>
+		<span class="heatmap-cell" data-level="3"></span>
+		<span class="heatmap-cell" data-level="4"></span>
+		<span>More</span>
+	</div>
+</figure>

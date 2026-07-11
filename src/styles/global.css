@@ -3,61 +3,78 @@
 @theme {
 	--font-sans: "IBM Plex Sans JP", "Hiragino Sans", "Meiryo", sans-serif;
 	--font-mono: "IBM Plex Mono", "Consolas", monospace;
+	--font-display: "Shippori Mincho", "Yu Mincho", "Hiragino Mincho ProN", "Noto Serif JP", serif;
 }
 
 /* ===== カラーテーマ =====
    既定はライト。OS/ブラウザが dark を指定すると自動でダークへ切り替わる。
    配色はすべて CSS 変数経由のため、ここを変えれば全ページに反映される。 */
+/* 全トークンを light-dark() で 1 回だけ定義（ライト値, ダーク値）。
+   色は color-scheme に従って解決される。手動同期は不要。 */
 :root {
 	color-scheme: light dark;
 
-	/* ライト（生成り白ベース・暖色系） */
-	--color-bg: #f6f3ee;
-	--color-surface: #fffdf9;
-	--color-surface-elevated: #ffffff;
-	--color-border: #e0d9cd;
-	--color-text: #221f1b;
-	--color-muted: #645c50; /* 本文グレー：AA 6:1 確保 */
-	--color-accent: #b04a1f; /* テキストでも 4.5:1 を満たす濃いオレンジ */
-	--color-accent-dim: #8f3a14;
-	--color-prog: #2f7d5b;
-	--color-planner: #8a6d0f;
-	--color-on-accent: #ffffff; /* アクセント面の上に載せる文字色 */
+	--color-bg: light-dark(#f6f3ee, #121110);
+	--color-surface: light-dark(#fffdf9, #1a1917);
+	--color-surface-elevated: light-dark(#ffffff, #242220);
+	--color-border: light-dark(#e0d9cd, #3a3632);
+	--color-text: light-dark(#221f1b, #ece6dc);
+	--color-muted: light-dark(#645c50, #a8a092); /* 本文グレー：AA 確保 */
+	--color-accent: light-dark(#b04a1f, #d4653a); /* テキストでも 4.5:1 */
+	--color-accent-dim: light-dark(#8f3a14, #a84e2c);
+	--color-prog: light-dark(#2f7d5b, #6b9e82);
+	--color-planner: light-dark(#8a6d0f, #c9a227);
+	--color-on-accent: light-dark(#ffffff, #121110);
+
+	/* 二次アクセント：真鍮ゴールド（豪華さの差し色）。
+	   ライトの小さい文字には gold-dim を使う（gold は大文字／UI 限定）。 */
+	--color-gold: light-dark(#a67c1a, #d8b15a);
+	--color-gold-dim: light-dark(#855f10, #b8923f);
+
+	/* AA 確保用の濃淡（ライトは濃く／ダークは明るく）：タグ文字・ボタンホバー */
+	--color-accent-hover: light-dark(#8f3a14, #e3794d);
+	--color-accent-text: light-dark(#8f3a14, #e3794d);
+	--color-prog-text: light-dark(#1f6347, #6b9e82);
+	--color-planner-text: light-dark(#6f560b, #c9a227);
+
+	/* 影：ライトは暖色アンバー、ダークは控えめ＋内側の明縁で立体を出す。 */
+	--shadow-color-1: light-dark(rgb(46 32 18 / 0.10), rgb(0 0 0 / 0.46));
+	--shadow-color-2: light-dark(rgb(46 32 18 / 0.06), rgb(0 0 0 / 0.30));
+	--shadow-highlight: light-dark(transparent, rgb(255 255 255 / 0.04));
+	--shadow-sm:
+		0 1px 2px var(--shadow-color-2),
+		inset 0 1px 0 var(--shadow-highlight);
+	--shadow-md:
+		0 2px 4px var(--shadow-color-2),
+		0 6px 16px var(--shadow-color-1),
+		inset 0 1px 0 var(--shadow-highlight);
+	--shadow-lg:
+		0 4px 8px var(--shadow-color-2),
+		0 16px 34px var(--shadow-color-1),
+		inset 0 1px 0 var(--shadow-highlight);
+
+	/* グラデーション */
+	--gradient-accent: linear-gradient(135deg, var(--color-accent), var(--color-gold));
+	--gradient-gold: linear-gradient(135deg, var(--color-gold), var(--color-gold-dim));
+	--glow-color: light-dark(
+		color-mix(in srgb, var(--color-accent) 14%, transparent),
+		color-mix(in srgb, var(--color-gold) 8%, transparent)
+	);
+	--gradient-hero-glow: radial-gradient(60% 65% at 50% 0%, var(--glow-color), transparent 72%);
+
+	/* 角丸（2 段階）。内側のスウォッチ／ドットは個別に 2px・円のまま。 */
+	--radius-control: 2px;
+	--radius-card: 4px;
+	--radius-media: 6px;
+
+	/* モーション */
+	--dur-lift: 200ms;
+	--ease-lift: cubic-bezier(0.22, 1, 0.36, 1);
+	--card-lift: -3px;
 }
 
-/* システム設定がダーク、かつユーザーが「ライト」を明示選択していない場合。
-   JS 無効時のフォールバックも兼ねる。
-   ※ ダークの値は下の [data-theme="dark"] と必ず一致させること。 */
-@media (prefers-color-scheme: dark) {
-	:root:not([data-theme="light"]) {
-		--color-bg: #121110;
-		--color-surface: #1a1917;
-		--color-surface-elevated: #242220;
-		--color-border: #3a3632;
-		--color-text: #ece6dc;
-		--color-muted: #a8a092; /* #9a9288 から引き上げてコントラスト改善 */
-		--color-accent: #d4653a;
-		--color-accent-dim: #a84e2c;
-		--color-prog: #6b9e82;
-		--color-planner: #c9a227;
-		--color-on-accent: #121110;
-		color-scheme: dark;
-	}
-}
-
-/* トグルボタンによる明示指定（システム設定を上書き） */
+/* トグルボタンによる明示指定（システム設定を上書き）。色は light-dark() が解決。 */
 :root[data-theme="dark"] {
-	--color-bg: #121110;
-	--color-surface: #1a1917;
-	--color-surface-elevated: #242220;
-	--color-border: #3a3632;
-	--color-text: #ece6dc;
-	--color-muted: #a8a092;
-	--color-accent: #d4653a;
-	--color-accent-dim: #a84e2c;
-	--color-prog: #6b9e82;
-	--color-planner: #c9a227;
-	--color-on-accent: #121110;
 	color-scheme: dark;
 }
 
@@ -110,23 +127,33 @@ body.mobile-nav-open {
 .btn-primary {
 	display: inline-flex;
 	align-items: center;
-	border-radius: 2px;
+	border-radius: var(--radius-control);
 	background-color: var(--color-accent);
+	/* 上端の控えめなシーン（光沢）。中央で透明になるためラベルのコントラストに影響しない。 */
+	background-image: linear-gradient(180deg, rgb(255 255 255 / 0.08), transparent 50%);
 	padding: 0.75rem 1.5rem;
 	font-size: 0.875rem;
 	font-weight: 600;
 	color: var(--color-on-accent);
-	transition: background-color 0.15s ease;
+	box-shadow: var(--shadow-sm);
+	transition:
+		background-color 0.15s ease,
+		box-shadow var(--dur-lift) var(--ease-lift),
+		transform var(--dur-lift) var(--ease-lift);
 }
 
 .btn-primary:hover {
-	background-color: var(--color-accent-dim);
+	/* ダークでは accent-dim（より暗い）だと暗い文字とのコントラストが落ちるため、
+	   ライト=濃く／ダーク=明るく の accent-hover を使う（AA 確保）。 */
+	background-color: var(--color-accent-hover);
+	box-shadow: var(--shadow-md);
+	transform: translateY(-1px);
 }
 
 .btn-secondary {
 	display: inline-flex;
 	align-items: center;
-	border-radius: 2px;
+	border-radius: var(--radius-control);
 	border: 1px solid var(--color-border);
 	padding: 0.75rem 1.5rem;
 	font-size: 0.875rem;
@@ -144,7 +171,7 @@ body.mobile-nav-open {
 
 /* タグ */
 .tag {
-	border-radius: 2px;
+	border-radius: var(--radius-control);
 	border: 1px solid var(--color-border);
 	padding: 0.125rem 0.5rem;
 	font-family: var(--font-mono);
@@ -156,13 +183,13 @@ body.mobile-nav-open {
 .tag--prog {
 	border-color: color-mix(in srgb, var(--color-prog) 45%, var(--color-border));
 	background-color: color-mix(in srgb, var(--color-prog) 14%, transparent);
-	color: var(--color-prog);
+	color: var(--color-prog-text);
 }
 
 .tag--planner {
 	border-color: color-mix(in srgb, var(--color-planner) 45%, var(--color-border));
 	background-color: color-mix(in srgb, var(--color-planner) 14%, transparent);
-	color: var(--color-planner);
+	color: var(--color-planner-text);
 }
 
 .tag--neutral {
@@ -171,7 +198,7 @@ body.mobile-nav-open {
 }
 
 .tag--contest {
-	color: var(--color-accent);
+	color: var(--color-accent-text);
 	border: 1px solid color-mix(in srgb, var(--color-accent) 40%, transparent);
 	background-color: color-mix(in srgb, var(--color-accent) 12%, transparent);
 }
@@ -179,12 +206,34 @@ body.mobile-nav-open {
 /* カード */
 .card {
 	border: 1px solid var(--color-border);
+	border-radius: var(--radius-card);
 	background-color: var(--color-surface);
-	transition: border-color 0.15s ease;
+	box-shadow: var(--shadow-sm);
+	transition:
+		border-color 0.15s ease,
+		box-shadow var(--dur-lift) var(--ease-lift),
+		transform var(--dur-lift) var(--ease-lift);
 }
 
-.card:hover {
-	border-color: var(--color-muted);
+/* ホバー可能なデバイスのみ浮上（タッチでの「張り付き」を防ぐ）。 */
+@media (hover: hover) {
+	.card:hover {
+		border-color: var(--color-muted);
+		box-shadow: var(--shadow-md);
+		transform: translateY(var(--card-lift));
+	}
+}
+
+/* 注目カード（Spotlight 等）：常時やや浮き、ホバーでさらに（移動なし）。 */
+.card--feature {
+	box-shadow: var(--shadow-md);
+}
+
+@media (hover: hover) {
+	.card--feature:hover {
+		box-shadow: var(--shadow-lg);
+		transform: none;
+	}
 }
 
 .card-link:hover {
@@ -249,6 +298,305 @@ body.mobile-nav-open {
 	margin-bottom: 0.35rem;
 }
 
+/* エレベーション・ユーティリティ */
+.elev-sm {
+	box-shadow: var(--shadow-sm);
+}
+.elev-md {
+	box-shadow: var(--shadow-md);
+}
+.elev-lg {
+	box-shadow: var(--shadow-lg);
+}
+
+@media (hover: hover) {
+	.hover-lift {
+		transition:
+			box-shadow var(--dur-lift) var(--ease-lift),
+			transform var(--dur-lift) var(--ease-lift);
+	}
+	.hover-lift:hover {
+		box-shadow: var(--shadow-md);
+		transform: translateY(var(--card-lift));
+	}
+}
+
+/* ヒーローの淡いグロー（上方から放射）。コンテンツは ::before の上に載る。 */
+.hero-glow {
+	position: relative;
+}
+.hero-glow::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	background: var(--gradient-hero-glow);
+	pointer-events: none;
+	z-index: 0;
+}
+.hero-glow > * {
+	position: relative;
+	z-index: 1;
+}
+
+/* ナビ等：ホバー／フォーカスで下線が伸びるアニメーション。 */
+.link-underline {
+	position: relative;
+}
+.link-underline::after {
+	content: "";
+	position: absolute;
+	left: 0;
+	bottom: -2px;
+	height: 2px;
+	width: 100%;
+	transform: scaleX(0);
+	transform-origin: left;
+	background-color: var(--color-accent);
+	transition: transform 0.2s var(--ease-lift);
+}
+.link-underline:hover::after,
+.link-underline:focus-visible::after {
+	transform: scaleX(1);
+}
+
+/* スクロール表示（進歩的強化）。
+   既定は可視。JS が許可した時のみ .reveal-ready 配下で初期状態を隠す。 */
+[data-reveal] {
+	opacity: 1;
+}
+.reveal-ready [data-reveal] {
+	opacity: 0;
+	transform: translateY(16px);
+	transition:
+		opacity 0.6s var(--ease-lift),
+		transform 0.6s var(--ease-lift);
+	transition-delay: var(--reveal-delay, 0ms);
+	will-change: opacity, transform;
+}
+.reveal-ready [data-reveal].is-revealed {
+	opacity: 1;
+	transform: none;
+}
+
+/* カウントアップ数値：桁送りで幅が暴れないよう等幅数字に。 */
+.count-up {
+	font-variant-numeric: tabular-nums;
+}
+
+/* ===== 開発統計の帯（StatStrip） ===== */
+.statstrip {
+	display: grid;
+	grid-template-columns: repeat(var(--statstrip-cols, 4), minmax(0, 1fr));
+	gap: 0.75rem;
+}
+.statstrip-cell {
+	position: relative;
+	overflow: hidden;
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius-card);
+	background-color: var(--color-surface);
+	box-shadow: var(--shadow-sm);
+	padding: 0.85rem 1rem;
+}
+/* 真鍮のコーナー罫（豪華さの差し色） */
+.statstrip-cell::before {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 1.75rem;
+	height: 2px;
+	background: var(--gradient-gold);
+}
+.statstrip-label {
+	font-family: var(--font-mono);
+	font-size: 0.625rem;
+	letter-spacing: 0.06em;
+	color: var(--color-muted);
+}
+.statstrip-value {
+	margin-top: 0.35rem;
+	font-family: var(--font-display);
+	font-weight: 700;
+	font-size: 1.35rem;
+	line-height: 1.1;
+	color: var(--color-text);
+}
+.statstrip--emphasis .statstrip-value {
+	font-size: 1.85rem;
+}
+
+/* ===== 貢献ヒートマップ ===== */
+.heatmap {
+	padding: 1.25rem 1.5rem 1.5rem;
+}
+.heatmap--compact {
+	padding: 1rem 1.1rem 1.2rem;
+}
+.heatmap-head {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 0.5rem;
+	margin-bottom: 0.9rem;
+}
+.heatmap-total {
+	font-family: var(--font-mono);
+	font-size: 0.75rem;
+	color: var(--color-muted);
+}
+.heatmap-scroll {
+	overflow-x: auto;
+	padding-bottom: 0.25rem;
+}
+.heatmap-grid {
+	display: grid;
+	grid-template-rows: repeat(7, 1fr);
+	grid-auto-flow: column;
+	grid-auto-columns: 1fr;
+	gap: 3px;
+	min-width: 22rem;
+}
+.heatmap-cell {
+	width: 100%;
+	aspect-ratio: 1;
+	min-width: 9px;
+	border-radius: 2px;
+	background-color: color-mix(in srgb, var(--color-border) 60%, transparent);
+}
+.heatmap-cell[data-level="1"] {
+	background-color: color-mix(in srgb, var(--color-prog) 32%, transparent);
+}
+.heatmap-cell[data-level="2"] {
+	background-color: color-mix(in srgb, var(--color-prog) 58%, transparent);
+}
+.heatmap-cell[data-level="3"] {
+	background-color: color-mix(in srgb, var(--color-prog) 85%, transparent);
+}
+.heatmap-cell[data-level="4"] {
+	background-color: var(--color-gold);
+	box-shadow: 0 0 6px color-mix(in srgb, var(--color-gold) 55%, transparent);
+}
+.heatmap-period {
+	margin-top: 0.75rem;
+	font-family: var(--font-mono);
+	font-size: 0.6875rem;
+	color: var(--color-muted);
+}
+.heatmap-legend {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	margin-top: 0.6rem;
+	font-family: var(--font-mono);
+	font-size: 0.625rem;
+	color: var(--color-muted);
+}
+.heatmap-legend .heatmap-cell {
+	width: 11px;
+	min-width: 11px;
+}
+.heatmap--compact .heatmap-legend {
+	display: none;
+}
+
+/* ===== コード装飾（HeroCodeAccent） ===== */
+.code-caret {
+	display: inline-block;
+	width: 0.5rem;
+	height: 1em;
+	margin-left: 0.18rem;
+	vertical-align: text-bottom;
+	background-color: var(--color-accent);
+	animation: code-caret-blink 1.05s steps(1) infinite;
+}
+@keyframes code-caret-blink {
+	0%,
+	50% {
+		opacity: 1;
+	}
+	50.01%,
+	100% {
+		opacity: 0;
+	}
+}
+.code-comment {
+	font-family: var(--font-mono);
+	font-size: 0.8125rem;
+	line-height: 1.6;
+	color: var(--color-muted);
+}
+.code-comment-slash {
+	color: var(--color-gold-dim);
+}
+.code-prompt {
+	font-family: var(--font-mono);
+	font-size: 0.8125rem;
+	color: var(--color-text);
+}
+.code-prompt-sign {
+	color: var(--color-prog);
+}
+
+/* ===== スキルマトリクス（SkillMatrix） ===== */
+.skill-cat-head {
+	font-family: var(--font-mono);
+	font-size: 0.75rem;
+	font-weight: 600;
+	letter-spacing: 0.08em;
+	color: var(--skill-color, var(--color-accent));
+}
+.skill-cat-head::before {
+	content: "— ";
+	color: var(--skill-color, var(--color-accent));
+}
+.skill-dots {
+	display: inline-flex;
+	gap: 4px;
+	flex-shrink: 0;
+}
+.skill-dot {
+	width: 8px;
+	height: 8px;
+	border-radius: 9999px;
+	border: 1px solid color-mix(in srgb, var(--skill-color) 45%, var(--color-border));
+	background: transparent;
+}
+.skill-dot.is-on {
+	background: var(--skill-color);
+	border-color: var(--skill-color);
+}
+.skill-evidence-link {
+	font-family: var(--font-mono);
+	font-size: 0.6875rem;
+	color: var(--color-accent);
+}
+.skill-evidence-link:hover {
+	text-decoration: underline;
+}
+
+/* ===== 課題→工夫→成果（作品詳細） ===== */
+.devised-row {
+	display: grid;
+	grid-template-columns: 3.5rem 1fr;
+	gap: 0.75rem;
+}
+.devised-label {
+	font-family: var(--font-mono);
+	font-size: 0.6875rem;
+	letter-spacing: 0.04em;
+	color: var(--color-accent);
+	padding-top: 0.15rem;
+}
+.devised-metric {
+	display: inline-block;
+	margin-left: 0.5rem;
+	font-family: var(--font-mono);
+	font-size: 0.75rem;
+	color: var(--color-gold-dim);
+}
+
 /* スマホ（768px未満） */
 @media (max-width: 767px) {
 	.section-eyebrow {
@@ -266,6 +614,15 @@ body.mobile-nav-open {
 		border-radius: 0;
 	}
 
+	.card:hover {
+		transform: none;
+	}
+
+	/* 統計帯は狭い画面では2列に折り返す */
+	.statstrip {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
 	.site-header {
 		padding-top: env(safe-area-inset-top);
 	}
@@ -274,5 +631,33 @@ body.mobile-nav-open {
 		min-height: 2.75rem;
 		display: flex;
 		align-items: center;
+	}
+}
+
+/* モーション抑制：常に「最終・可視」状態へ落とす（アクセシビリティ）。 */
+@media (prefers-reduced-motion: reduce) {
+	html {
+		scroll-behavior: auto;
+	}
+
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.001ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.001ms !important;
+		scroll-behavior: auto !important;
+	}
+
+	.card:hover,
+	.card--feature:hover,
+	.hover-lift:hover,
+	.btn-primary:hover {
+		transform: none;
+	}
+
+	.reveal-ready [data-reveal] {
+		opacity: 1;
+		transform: none;
 	}
 }

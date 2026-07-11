@@ -1,0 +1,59 @@
+---
+// スキルを「レベル（3段階ドット）＋根拠＋作品リンク」で見せる。
+// compact=true（About 用）はドットのみ、full（/engineering 用）は根拠・リンクも表示。
+import type { SkillCategory } from '../data/skills';
+import { SKILL_LEVELS } from '../data/skills';
+
+interface Props {
+	categories: SkillCategory[];
+	workTitleById?: Record<string, string>;
+	compact?: boolean;
+	class?: string;
+}
+
+const { categories, workTitleById = {}, compact = false, class: className } = Astro.props;
+const dots = [1, 2, 3] as const;
+---
+
+<div class:list={['grid gap-5 sm:grid-cols-2', className]}>
+	{
+		categories.map((cat) => (
+			<div class="card p-6" data-reveal>
+				<h3 class="skill-cat-head" style={`--skill-color:${cat.colorVar}`}>
+					{cat.label}
+				</h3>
+				<ul class="mt-4 space-y-4">
+					{cat.items.map((item) => (
+						<li>
+							<div class="flex items-center justify-between gap-3">
+								<span class="text-sm font-medium text-[var(--color-text)]">{item.name}</span>
+								<span
+									class="skill-dots"
+									style={`--skill-color:${cat.colorVar}`}
+									title={SKILL_LEVELS[item.level].label}
+									aria-label={`習熟度: ${SKILL_LEVELS[item.level].label}`}
+								>
+									{dots.map((d) => (
+										<span class:list={['skill-dot', d <= item.level && 'is-on']} />
+									))}
+								</span>
+							</div>
+							{!compact && item.evidence && (
+								<p class="mt-1 text-xs leading-relaxed text-[var(--color-muted)]">{item.evidence}</p>
+							)}
+							{!compact && item.workIds && item.workIds.length > 0 && (
+								<p class="mt-1 flex flex-wrap gap-x-3 gap-y-1">
+									{item.workIds.map((id) => (
+										<a href={`/works/${id}`} class="skill-evidence-link">
+											{workTitleById[id] ?? id} →
+										</a>
+									))}
+								</p>
+							)}
+						</li>
+					))}
+				</ul>
+			</div>
+		))
+	}
+</div>

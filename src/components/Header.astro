@@ -2,6 +2,7 @@
 const navItems = [
 	{ href: '/', label: 'ホーム' },
 	{ href: '/works', label: '作品一覧' },
+	{ href: '/engineering', label: 'エンジニアリング' },
 	{ href: '/about', label: 'プロフィール' },
 ];
 
@@ -33,7 +34,7 @@ const currentPath = Astro.url.pathname;
 								'px-3 py-2 text-sm transition-colors',
 								isActive
 									? 'font-medium text-[var(--color-text)] underline decoration-[var(--color-accent)] decoration-2 underline-offset-4'
-									: 'text-[var(--color-muted)] hover:text-[var(--color-text)]',
+									: 'link-underline text-[var(--color-muted)] hover:text-[var(--color-text)]',
 							]}
 						>
 							{item.label}
@@ -113,80 +114,95 @@ const currentPath = Astro.url.pathname;
 </header>
 
 <script>
-	// テーマ切り替え（ライト / ダーク）。明示選択は localStorage に保存し、
-	// 未選択時はシステム設定（prefers-color-scheme）に追従する。
-	(function initThemeToggle() {
-		const root = document.documentElement;
+	// テーマ切り替え＋モバイルドロワー。View Transitions でヘッダー DOM が差し替わっても
+	// 動くよう、要素単位の多重バインド防止（data-bound）＋ astro:page-load 再バインドで実装。
+	// グローバル（document/window）リスナーは一度だけ張り、発火時に現在の DOM を参照する。
+	function resolvedTheme(): 'light' | 'dark' {
+		const attr = document.documentElement.dataset.theme;
+		if (attr === 'light' || attr === 'dark') return attr;
+		return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+	}
+
+	function syncThemeIcon() {
 		const btn = document.querySelector<HTMLButtonElement>('.theme-toggle');
 		if (!btn) return;
-		const iconDark = btn.querySelector('.theme-icon-dark');
-		const iconLight = btn.querySelector('.theme-icon-light');
-		const mql = window.matchMedia('(prefers-color-scheme: dark)');
+		const isDark = resolvedTheme() === 'dark';
+		btn.querySelector('.theme-icon-dark')?.classList.toggle('hidden', !isDark);
+		btn.querySelector('.theme-icon-light')?.classList.toggle('hidden', isDark);
+		btn.setAttribute('aria-label', isDark ? 'ライトモードに切り替える' : 'ダークモードに切り替える');
+	}
 
-		function resolved(): 'light' | 'dark' {
-			const attr = root.dataset.theme;
-			if (attr === 'light' || attr === 'dark') return attr;
-			return mql.matches ? 'dark' : 'light';
+	function setMobileNav(open: boolean) {
+		const toggle = document.querySelector<HTMLButtonElement>('.mobile-nav-toggle');
+		const panel = document.querySelector<HTMLElement>('#mobile-nav');
+		if (!toggle || !panel) return;
+		toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+		toggle.setAttribute('aria-label', open ? 'メニューを閉じる' : 'メニューを開く');
+		panel.classList.toggle('hidden', !open);
+		document.querySelector('.mobile-nav-icon-open')?.classList.toggle('hidden', open);
+		document.querySelector('.mobile-nav-icon-close')?.classList.toggle('hidden', !open);
+		document.body.classList.toggle('mobile-nav-open', open);
+	}
+
+	function bindHeader() {
+		const btn = document.querySelector<HTMLButtonElement>('.theme-toggle');
+		if (btn && btn.dataset.bound !== 'true') {
+			btn.dataset.bound = 'true';
+			btn.addEventListener('click', () => {
+				const next = resolvedTheme() === 'dark' ? 'light' : 'dark';
+				document.documentElement.dataset.theme = next;
+				try {
+					localStorage.setItem('theme', next);
+				} catch (e) {}
+				syncThemeIcon();
+			});
 		}
 
-		function syncIcon() {
-			const isDark = resolved() === 'dark';
-			iconDark?.classList.toggle('hidden', !isDark);
-			iconLight?.classList.toggle('hidden', isDark);
-			btn.setAttribute('aria-label', isDark ? 'ライトモードに切り替える' : 'ダークモードに切り替える');
+		const toggle = document.querySelector<HTMLButtonElement>('.mobile-nav-toggle');
+		if (toggle && toggle.dataset.bound !== 'true') {
+			toggle.dataset.bound = 'true';
+			toggle.addEventListener('click', () => {
+				setMobileNav(toggle.getAttribute('aria-expanded') !== 'true');
+			});
 		}
 
-		btn.addEventListener('click', () => {
-			const next = resolved() === 'dark' ? 'light' : 'dark';
-			root.dataset.theme = next;
-			try {
-				localStorage.setItem('theme', next);
-			} catch (e) {}
-			syncIcon();
-		});
-
-		// auto モード（明示選択なし）のときだけシステム変更に追従
-		mql.addEventListener('change', () => {
-			if (!root.dataset.theme) syncIcon();
-		});
-
-		syncIcon();
-	})();
-
-	const header = document.querySelector('.site-header');
-	if (header) {
-		const toggle = header.querySelector<HTMLButtonElement>('.mobile-nav-toggle');
-		const panel = header.querySelector<HTMLElement>('#mobile-nav');
-		const iconOpen = header.querySelector('.mobile-nav-icon-open');
-		const iconClose = header.querySelector('.mobile-nav-icon-close');
-
-		function setOpen(open: boolean) {
-			if (!toggle || !panel) return;
-			toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
-			toggle.setAttribute('aria-label', open ? 'メニューを閉じる' : 'メニューを開く');
-			panel.classList.toggle('hidden', !open);
-			iconOpen?.classList.toggle('hidden', open);
-			iconClose?.classList.toggle('hidden', !open);
-			document.body.classList.toggle('mobile-nav-open', open);
+		const panel = document.querySelector<HTMLElement>('#mobile-nav');
+		if (panel && panel.dataset.bound !== 'true') {
+			panel.dataset.bound = 'true';
+			panel.querySelectorAll('a').forEach((link) => {
+				link.addEventListener('click', () => setMobileNav(false));
+			});
 		}
 
-		toggle?.addEventListener('click', () => {
-			const open = toggle.getAttribute('aria-expanded') !== 'true';
-			setOpen(open);
-		});
+		syncThemeIcon();
+		setMobileNav(false); // 遷移直後はドロワーを閉じておく
+	}
 
-		panel?.querySelectorAll('a').forEach((link) => {
-			link.addEventListener('click', () => setOpen(false));
-		});
+	function bindHeaderGlobalsOnce() {
+		if ((window as unknown as { __headerGlobals?: boolean }).__headerGlobals) return;
+		(window as unknown as { __headerGlobals?: boolean }).__headerGlobals = true;
 
 		document.addEventListener('keydown', (e) => {
-			if (e.key === 'Escape' && toggle?.getAttribute('aria-expanded') === 'true') {
-				setOpen(false);
-			}
+			if (e.key !== 'Escape') return;
+			const t = document.querySelector<HTMLButtonElement>('.mobile-nav-toggle');
+			if (t?.getAttribute('aria-expanded') === 'true') setMobileNav(false);
 		});
 
+		// auto モード（明示選択なし）のときだけシステムのテーマ変更に追従
+		window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+			if (!document.documentElement.dataset.theme) syncThemeIcon();
+		});
+
+		// デスクトップ幅に戻ったらドロワーを閉じる
 		window.matchMedia('(min-width: 768px)').addEventListener('change', (e) => {
-			if (e.matches) setOpen(false);
+			if (e.matches) setMobileNav(false);
 		});
 	}
+
+	bindHeader();
+	bindHeaderGlobalsOnce();
+	document.addEventListener('astro:page-load', () => {
+		bindHeader();
+		bindHeaderGlobalsOnce();
+	});
 </script>

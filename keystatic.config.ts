@@ -111,6 +111,37 @@ export default config({
 					label: '工夫・学んだこと',
 					itemLabel: (props) => props.value ?? '項目',
 				}),
+				devisedCases: fields.array(
+					fields.object({
+						title: fields.text({ label: '見出し（工夫のタイトル）' }),
+						challenge: fields.text({ label: '課題', multiline: true }),
+						approach: fields.text({ label: '工夫（やったこと）', multiline: true }),
+						result: fields.text({ label: '成果', multiline: true }),
+						metric: fields.text({
+							label: '成果の数値（任意）',
+							description: '例: 98コミット / 描画60fps など。stats の項目と対応させると効果的',
+						}),
+					}),
+					{
+						label: '課題→工夫→成果',
+						description: '「何が課題で、どう工夫し、どうなったか」を1件ずつ。採用担当が最も見る箇所です',
+						itemLabel: (props) => props.fields.title.value || '工夫',
+					},
+				),
+				contribution: fields.object(
+					{
+						summary: fields.text({
+							label: '個人の貢献（要約）',
+							description: 'チームの中で自分が担当・主導したことを1〜2文で',
+							multiline: true,
+						}),
+						items: fields.array(fields.text({ label: '担当・貢献' }), {
+							label: '担当・貢献（箇条書き）',
+							itemLabel: (props) => props.value ?? '項目',
+						}),
+					},
+					{ label: '個人の貢献（チーム開発）' },
+				),
 				featured: fields.checkbox({
 					label: 'トップに表示',
 					defaultValue: false,
@@ -123,6 +154,44 @@ export default config({
 				award: fields.text({
 					label: '結果・受賞',
 					description: 'コンテストでの結果や受賞（例: グラフィック賞受賞）',
+				}),
+				repoUrl: fields.url({
+					label: 'GitHub リポジトリ',
+					description: 'リポジトリの URL（例: https://github.com/owner/repo）',
+				}),
+				liveUrl: fields.url({
+					label: '公開デモ URL',
+					description: 'プレイ可能なデモ・リリースページなど',
+				}),
+				stats: fields.array(
+					fields.object({
+						label: fields.text({
+							label: '項目',
+							description: '例: コミット数 / 追加行 / 削除行 / 期間 / 人数',
+						}),
+						value: fields.text({
+							label: '値',
+							description: '例: 98 / 299,841 / 84,609 / 約3ヶ月 / 4人',
+						}),
+					}),
+					{
+						label: '開発統計（GitHub）',
+						itemLabel: (props) => {
+							const label = props.fields.label.value;
+							const value = props.fields.value.value;
+							return label || value ? `${label}: ${value}` : '統計';
+						},
+					},
+				),
+				statsImage: fields.image({
+					label: '貢献グラフ画像',
+					description: 'GitHub のコントリビューショングラフ等のスクリーンショット',
+					directory: 'public/images/gavamento',
+					publicPath: '/images/gavamento/',
+				}),
+				spotlight: fields.checkbox({
+					label: 'トップで大きく表示（スポットライト）',
+					defaultValue: false,
 				}),
 				content: fields.markdoc({
 					label: '詳細',

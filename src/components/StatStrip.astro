@@ -1,0 +1,54 @@
+---
+// 開発統計を「上質なセル＋数値カウントアップ」で見せる帯。
+// 値が数値として解釈できれば 0→値 でカウントアップ、できなければ静的表示。
+// 既存の stats: {label, value}[] をそのまま渡せる（プレフィックス/サフィックスは値文字列から自動分解）。
+import { parseCountValue } from '../lib/format';
+
+interface StatItem {
+	label: string;
+	value: string;
+}
+
+interface Props {
+	stats: StatItem[];
+	/** 列数（未指定なら最大4でstats数に合わせる） */
+	columns?: number;
+	/** 大きめ表示（トップのヒーロー帯など） */
+	emphasis?: boolean;
+	class?: string;
+}
+
+const { stats, columns, emphasis = false, class: className } = Astro.props;
+const cols = columns ?? Math.min(stats.length, 4);
+---
+
+<dl
+	class:list={['statstrip', emphasis && 'statstrip--emphasis', className]}
+	style={`--statstrip-cols:${cols}`}
+>
+	{
+		stats.map((s) => {
+			const parsed = parseCountValue(s.value);
+			return (
+				<div class="statstrip-cell">
+					<dt class="statstrip-label">{s.label}</dt>
+					<dd class="statstrip-value">
+						{parsed ? (
+							<span
+								class="count-up"
+								data-count-to={parsed.number}
+								data-count-prefix={parsed.prefix}
+								data-count-suffix={parsed.suffix}
+								data-count-decimals={parsed.decimals}
+							>
+								{s.value}
+							</span>
+						) : (
+							<span>{s.value}</span>
+						)}
+					</dd>
+				</div>
+			);
+		})
+	}
+</dl>
