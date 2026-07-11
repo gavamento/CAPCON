@@ -43,7 +43,6 @@ npm run preview
 npm run deploy
 ```
 
-または:
 
 ```bash
 npm run build
@@ -58,6 +57,7 @@ firebase deploy --only hosting
 
 `src/content/works/` に `.md` ファイルを追加します。
 
+または:
 ```yaml
 ---
 title: "作品タイトル"

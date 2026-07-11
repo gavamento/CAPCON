@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import { ClientRouter } from 'astro:transitions';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 
@@ -20,12 +21,18 @@ const pageTitle = title.includes('Portfolio') ? title : `${title} | Game Portfol
 <html lang="ja">
 	<head>
 		<meta charset="utf-8" />
-		<script is:inline>
+		<script is:inline data-astro-rerun>
 				(function () {
 					try {
 						var t = localStorage.getItem('theme');
 						if (t === 'light' || t === 'dark') {
 							document.documentElement.dataset.theme = t;
+						}
+					} catch (e) {}
+					try {
+						// モーション許可時のみ reveal の初期非表示を有効化（FOUC 防止）。
+						if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+							document.documentElement.classList.add('reveal-ready');
 						}
 					} catch (e) {}
 				})();
@@ -40,10 +47,11 @@ const pageTitle = title.includes('Portfolio') ? title : `${title} | Game Portfol
 		<link rel="preconnect" href="https://fonts.googleapis.com" />
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 		<link
-			href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;600;700&display=swap"
+			href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;600;700&family=Shippori+Mincho:wght@500;600;700&display=swap"
 			rel="stylesheet"
 		/>
 		<title>{pageTitle}</title>
+		<ClientRouter />
 	</head>
 	<body class="flex min-h-dvh flex-col antialiased">
 		<Header />
@@ -51,6 +59,16 @@ const pageTitle = title.includes('Portfolio') ? title : `${title} | Game Portfol
 			<slot />
 		</main>
 		<Footer />
+		<!-- モーションは重い firebase 依存と分離（firebase の読み込み失敗で reveal が止まらないように）。 -->
+		<script>
+			import { initReveal, initCountUp } from '../scripts/motion';
+			const boot = () => {
+				initReveal();
+				initCountUp();
+			};
+			document.addEventListener('astro:page-load', boot);
+			boot();
+		</script>
 		<script>
 			import { initFirebase } from '../lib/firebase';
 			void initFirebase();

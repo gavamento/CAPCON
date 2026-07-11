@@ -1,0 +1,75 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { getEffectiveWorkTags, getWorkThumbnail } from '../lib/works';
+import { publicAssetUrl } from '../lib/assets';
+import WorkTagBadges from './WorkTagBadges.astro';
+import StatStrip from './StatStrip.astro';
+
+interface Props {
+	work: CollectionEntry<'works'>;
+	class?: string;
+}
+
+const { work, class: className } = Astro.props;
+const { title, summary, repoUrl, liveUrl, stats, statsImage } = work.data;
+const displayTags = getEffectiveWorkTags(work.data);
+const href = `/works/${work.id}`;
+// 貢献グラフがあれば優先、無ければ通常サムネ（→プレースホルダ）にフォールバック
+const heroImage = statsImage ? publicAssetUrl(statsImage) : getWorkThumbnail(work.data);
+---
+
+<article class:list={['card card--feature overflow-hidden', className]} data-reveal>
+	<div class="grid md:grid-cols-2">
+		<a
+			href={href}
+			class="block overflow-hidden border-b border-[var(--color-border)] md:border-b-0 md:border-r"
+		>
+			<img
+				src={heroImage}
+				alt=""
+				class="aspect-video w-full object-cover md:h-full"
+				loading="lazy"
+			/>
+		</a>
+		<div class="flex flex-col gap-4 p-6 sm:p-8">
+			<p class="section-eyebrow">Spotlight</p>
+			<div class="flex flex-wrap items-center gap-2">
+				<WorkTagBadges tags={displayTags} />
+			</div>
+			<h3 class="font-[var(--font-display)] text-2xl font-bold leading-snug text-[var(--color-text)]">
+				<a href={href} class="card-link transition-colors">{title}</a>
+			</h3>
+			<p class="text-sm leading-relaxed text-[var(--color-muted)]">{summary}</p>
+
+			{stats && stats.length > 0 && <StatStrip stats={stats} />}
+
+			<div class="mt-auto flex flex-col gap-3 pt-2 sm:flex-row sm:flex-wrap">
+				<a href={href} class="btn-primary w-full justify-center sm:w-auto">詳細を見る</a>
+				{
+					repoUrl && (
+						<a
+							href={repoUrl}
+							class="btn-secondary w-full justify-center sm:w-auto"
+							target="_blank"
+							rel="noopener noreferrer"
+						>
+							GitHub
+						</a>
+					)
+				}
+				{
+					liveUrl && (
+						<a
+							href={liveUrl}
+							class="btn-secondary w-full justify-center sm:w-auto"
+							target="_blank"
+							rel="noopener noreferrer"
+						>
+							デモを開く
+						</a>
+					)
+				}
+			</div>
+		</div>
+	</div>
+</article>

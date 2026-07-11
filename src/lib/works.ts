@@ -10,6 +10,14 @@ import {
 export type WorkEntry = CollectionEntry<'works'>;
 export type WorkData = WorkEntry['data'];
 
+export interface DevisedCase {
+	title: string;
+	challenge: string;
+	approach: string;
+	result: string;
+	metric?: string;
+}
+
 const DEFAULT_WORK_THUMBNAIL = '/images/placeholder-year1.svg';
 
 /** 一覧・カード用サムネイル（未設定時は先頭スクリーンショット、なければプレースホルダー） */
@@ -47,10 +55,56 @@ export function getFeaturedWorks(works: WorkEntry[]): WorkEntry[] {
 	return works.filter((w) => w.data.featured);
 }
 
+/** トップで大きく出す目玉作品（spotlight フラグが立つ先頭 1 件） */
+export function getSpotlightWork(works: WorkEntry[]): WorkEntry | undefined {
+	return works.find((w) => w.data.spotlight);
+}
+
 export function getWorksByYear(works: WorkEntry[], year: YearLevel): WorkEntry[] {
 	return works.filter((w) => getYearFromTags(w.data.tags) === year);
 }
 
 export function getContestWorksFromList(works: WorkEntry[]): WorkEntry[] {
 	return works.filter((w) => isSchoolContestWork(w.data));
+}
+
+/** カード/一覧で1行だけ見せる「代表の工夫」リード（devisedCases優先、無ければhighlights先頭） */
+export function getWorkHighlightLead(data: WorkData): string | undefined {
+	const lead = data.devisedCases?.[0]?.title ?? data.highlights?.[0];
+	return lead?.trim() || undefined;
+}
+
+/** id配列から作品を取得（順序維持・見つからないものは除外） */
+export function getWorksByIds(works: WorkEntry[], ids: string[]): WorkEntry[] {
+	const byId = new Map(works.map((w) => [w.id, w]));
+	return ids.map((id) => byId.get(id)).filter((w): w is WorkEntry => Boolean(w));
+}
+
+/** id→タイトルの辞書（SkillMatrix のリンク表示などに使用） */
+export function getWorkTitleMap(works: WorkEntry[]): Record<string, string> {
+	return Object.fromEntries(works.map((w) => [w.id, w.data.title]));
+}
+
+export interface CuratedDevisedCase extends DevisedCase {
+	workId: string;
+	workTitle: string;
+}
+
+/** 全作品から「課題→工夫→成果」を集約（/engineering の代表的な工夫用） */
+export function getCuratedDevisedCases(
+	works: WorkEntry[],
+	opts: { max?: number } = {},
+): CuratedDevisedCase[] {
+	const out: CuratedDevisedCase[] = [];
+	for (const w of works) {
+		for (const c of w.data.devisedCases ?? []) {
+			out.push({ ...c, workId: w.id, workTitle: w.data.title });
+		}
+	}
+	return typeof opts.max === 'number' ? out.slice(0, opts.max) : out;
+}
+
+/** GitHub 実績ショーケース用の作品（spotlight を流用） */
+export function getGithubShowcaseWork(works: WorkEntry[]): WorkEntry | undefined {
+	return getSpotlightWork(works);
 }

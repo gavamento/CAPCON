@@ -1,6 +1,6 @@
 ---
 import type { CollectionEntry } from 'astro:content';
-import { getEffectiveWorkTags, getWorkThumbnail } from '../lib/works';
+import { getEffectiveWorkTags, getWorkThumbnail, getWorkHighlightLead } from '../lib/works';
 import WorkTagBadges from './WorkTagBadges.astro';
 
 interface Props {
@@ -8,13 +8,14 @@ interface Props {
 }
 
 const { work } = Astro.props;
-const { title, summary, role, driveLink } = work.data;
+const { title, summary, role, driveLink, repoUrl } = work.data;
 const displayTags = getEffectiveWorkTags(work.data);
 const href = `/works/${work.id}`;
 const thumb = getWorkThumbnail(work.data);
+const lead = getWorkHighlightLead(work.data);
 ---
 
-<article class="card group flex h-full flex-col overflow-hidden">
+<article class="card group flex h-full flex-col overflow-hidden" data-reveal>
 	<a href={href} class="block overflow-hidden border-b border-[var(--color-border)]">
 		<img
 			src={thumb}
@@ -31,7 +32,26 @@ const thumb = getWorkThumbnail(work.data);
 			<a href={href} class="card-link transition-colors">{title}</a>
 		</h3>
 		<p class="flex-1 text-sm leading-relaxed text-[var(--color-muted)]">{summary}</p>
+		{
+			lead && (
+				<p class="border-l-2 border-[var(--color-gold)] pl-2.5 text-xs leading-relaxed text-[var(--color-text)]">
+					{lead}
+				</p>
+			)
+		}
 		<p class="font-mono text-xs text-[var(--color-muted)]">{role}</p>
+		{
+			repoUrl && (
+				<a
+					href={repoUrl}
+					class="inline-flex items-center gap-1 font-mono text-xs text-[var(--color-accent)] transition hover:underline"
+					target="_blank"
+					rel="noopener noreferrer"
+				>
+					GitHub →
+				</a>
+			)
+		}
 		{
 			driveLink && (
 				<a

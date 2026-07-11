@@ -2,17 +2,32 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import GrowthTimeline from '../components/GrowthTimeline.astro';
 import WorkCard from '../components/WorkCard.astro';
-import { getAllWorks, getFeaturedWorks } from '../lib/works';
+import WorkSpotlight from '../components/WorkSpotlight.astro';
+import StatStrip from '../components/StatStrip.astro';
+import ContributionHeatmap from '../components/ContributionHeatmap.astro';
+import HeroCodeAccent from '../components/HeroCodeAccent.astro';
+import { getAllWorks, getFeaturedWorks, getSpotlightWork, getGithubShowcaseWork } from '../lib/works';
+import { getContributionGraph } from '../data/contributions';
+import { getTopSkills } from '../data/skills';
 
 const works = await getAllWorks();
-const featured = getFeaturedWorks(works);
+const spotlight = getSpotlightWork(works);
+// spotlight は下のグリッドから除外して重複表示を防ぐ
+const featured = getFeaturedWorks(works).filter((w) => w.id !== spotlight?.id);
+
+// 技術力バンド用：看板作品の GitHub 実績から要点だけ抜粋
+const showcase = getGithubShowcaseWork(works);
+const showcaseGraph = showcase ? getContributionGraph(showcase.id) : undefined;
+const heroStatLabels = ['コミット数', '追加行', 'コントリビューター'];
+const heroStats = (showcase?.data.stats ?? []).filter((s) => heroStatLabels.includes(s.label));
+const topSkills = getTopSkills(4);
 ---
 
 <BaseLayout>
-	<section class="border-b border-[var(--color-border)]">
+	<section class="hero-glow border-b border-[var(--color-border)]" data-reveal>
 		<div class="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-24">
-			<p class="section-eyebrow mb-4 sm:mb-6">Game Programmer / Planner</p>
-			<h1 class="max-w-2xl text-[1.625rem] font-bold leading-[1.3] tracking-tight text-[var(--color-text)] sm:text-5xl">
+			<HeroCodeAccent variant="caret" text="Game Programmer / Planner" class="mb-4 sm:mb-6" />
+			<h1 class="max-w-2xl font-[var(--font-display)] text-[1.625rem] font-bold leading-[1.3] tracking-tight text-[var(--color-text)] sm:text-5xl">
 				ゲームづくりへの<br class="hidden sm:block" />
 				3年間の成長を、作品とともに。
 			</h1>
@@ -26,21 +41,47 @@ const featured = getFeaturedWorks(works);
 		</div>
 	</section>
 
-	<section class="mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-20">
+	{
+		showcase && (heroStats.length > 0 || showcaseGraph) && (
+			<section class="border-b border-[var(--color-border)]" data-reveal>
+				<div class="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16">
+					<HeroCodeAccent variant="comment" text="3年間で積み上げた、動くコードと数字。" class="mb-3" />
+					<h2 class="mb-6 font-[var(--font-display)] text-xl font-bold text-[var(--color-text)] sm:text-2xl">
+						エンジニアとしての実力
+					</h2>
+					{heroStats.length > 0 && <StatStrip stats={heroStats} emphasis class="mb-6" />}
+					{showcaseGraph && <ContributionHeatmap graph={showcaseGraph} compact class="mb-6" />}
+					<div class="flex flex-wrap items-center gap-2">
+						{topSkills.map((s) => (
+							<span class="tag tag--prog px-2.5 py-1">{s.name}</span>
+						))}
+						<a href="/engineering" class="btn-secondary ml-auto">
+							エンジニアリングを見る →
+						</a>
+					</div>
+				</div>
+			</section>
+		)
+	}
+
+	<section class="mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-20" data-reveal>
 		<GrowthTimeline works={works} showWorks={true} maxWorksPerYear={2} />
 	</section>
 
 	{
-		featured.length > 0 && (
+		(spotlight || featured.length > 0) && (
 			<section class="border-t border-[var(--color-border)] py-14 sm:py-20">
 				<div class="mx-auto max-w-6xl px-4 sm:px-6">
 					<p class="section-eyebrow mb-2">Pick up</p>
-					<h2 class="mb-8 text-2xl font-bold text-[var(--color-text)]">ピックアップ作品</h2>
-					<div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-						{featured.map((work) => (
-							<WorkCard work={work} />
-						))}
-					</div>
+					<h2 class="mb-8 font-[var(--font-display)] text-2xl font-bold text-[var(--color-text)]">ピックアップ作品</h2>
+					{spotlight && <WorkSpotlight work={spotlight} class="mb-8 sm:mb-10" />}
+					{featured.length > 0 && (
+						<div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3" data-reveal-group data-reveal-stagger="80">
+							{featured.map((work) => (
+								<WorkCard work={work} />
+							))}
+						</div>
+					)}
 				</div>
 			</section>
 		)
