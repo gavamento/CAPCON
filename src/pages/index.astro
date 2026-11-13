@@ -18,8 +18,13 @@ const featured = getFeaturedWorks(works).filter((w) => w.id !== spotlight?.id);
 // 技術力バンド用：看板作品の GitHub 実績から要点だけ抜粋
 const showcase = getGithubShowcaseWork(works);
 const showcaseGraph = showcase ? getContributionGraph(showcase.id) : undefined;
-const heroStatLabels = ['コミット数', '追加行', 'コントリビューター'];
-const heroStats = (showcase?.data.stats ?? []).filter((s) => heroStatLabels.includes(s.label));
+// トップの数字は「成果」で見せる（コミット数・行数は詳細ページ側に置く）
+const heroStats = [
+	{ label: '展示・出展', value: '東京ゲームダンジョン13' },
+	{ label: '自作エンジン', value: '2本（ECS / 決定論）' },
+	{ label: '受賞', value: 'HAL Event Week ビジュアル賞' },
+	{ label: '主言語', value: 'C++ 3年' },
+];
 const topSkills = getTopSkills(4);
 ---
 

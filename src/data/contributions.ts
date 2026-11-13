@@ -33,7 +33,7 @@ export const contributionGraphs: Record<string, ContributionGraph> = {
 	gavamento: {
 		weeks: gavamentoWeeks,
 		total: 155,
-		periodLabel: '2026.3.7 〜 現在（進行中・9月マスター提出予定）',
+		periodLabel: '2026.3.7 〜 2026.9（マスター提出済み）',
 	},
 };
 
